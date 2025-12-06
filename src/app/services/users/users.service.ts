@@ -15,6 +15,7 @@ export class UsersService {
   //   return this.httpClient.post<ResponseDTO<String>>(`${environment.apiUrl}/users/information`, body);
   // }
   authenticateUser(idToken: string): Observable<{ token: string}> {
+    console.log("Hello Aleksandar");
     return this.httpClient.post<{ token: string }>(`${environment.apiUrl}/auth/authenticate`, { idToken });
   }
 }
