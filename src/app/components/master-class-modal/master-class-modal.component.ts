@@ -4,6 +4,7 @@ import {MasterClass} from '../../models/masterClass.model';
 import {FormsModule} from '@angular/forms';
 import {DatePipe, NgForOf, NgIf} from '@angular/common';
 import {Observable, of, tap} from 'rxjs';
+import {Modal} from 'bootstrap';
 
 @Component({
   selector: 'app-master-class-modal',
@@ -51,8 +52,6 @@ export class MasterClassModalComponent {
   }
 
 
-
-
   // dodavanje nove aktivnosti
   addMasterClass(newActivity: any) {
     if (!newActivity.datumOdrzavanjaCasova || !newActivity.predmetNaMasterStudijama || !newActivity.odrzanoCasova) return;
@@ -64,7 +63,6 @@ export class MasterClassModalComponent {
     //   nastavnikId: this.nastavnikId
     // };
 
-
     this.masterClassService.addMasterClass(newActivity)
       .subscribe(newClass => {
         this.masterClasses.unshift(newClass); // dodaj na vrh tabele
@@ -73,5 +71,17 @@ export class MasterClassModalComponent {
         this.newCasova = null;
         this.newDatum = '';
       });
+
+    this.closeModal();
+
+  }
+
+
+  closeModal() {
+    const modalEl = document.getElementById('addMasterActivityModal');
+    if(modalEl) {
+      const modal = Modal.getInstance(modalEl);
+      modal?.hide();
+    }
   }
 }

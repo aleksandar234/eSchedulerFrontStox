@@ -22,6 +22,8 @@ import {DoctoralActivityComponent} from '../../../modules/doctoral-activity/doct
 import {FormsModule} from '@angular/forms';
 import {MasterClassModalComponent} from '../../master-class-modal/master-class-modal.component';
 import {Modal} from 'bootstrap';
+import {MasterClassService} from '../../../services/masterClass/master-class.service';
+import {Observable} from 'rxjs';
 
 
 (pdfMake as any).vfs = pdfFonts;
@@ -47,6 +49,7 @@ export class HomeComponent implements OnInit {
   teacherSummary: TeacherSummary[] = [];
   selectedPostModule: 'NONE' | 'MASTER' | 'DOKTORSKE' = 'NONE'
 
+
   summaryRows = 1;
   totalLectures = 0;
   totalExercises = 0;
@@ -54,7 +57,7 @@ export class HomeComponent implements OnInit {
   weeklyExercisesE = 0;
   weeklyLecturesO = 0;
   weeklyExercisesO = 0;
-  extraMasterClasses = 0;
+  extraMasterClasses: number = 0;
   masterClasses: any[] = [];
 
 
@@ -82,7 +85,25 @@ export class HomeComponent implements OnInit {
       masterDate: Date
     }
 
+    this.loadTotalClassesAsync();
 
+
+  }
+
+  loadTotalClassesAsync() {
+    const intervalId = setInterval(() => {
+      if (this.selectedDistributions?.length && this.selectedDistributions[0]?.teacher?.id) {
+        console.log("Ucitao sam ukupan broj casova");
+        this.masterService.triggerCountEvent(this.selectedDistributions[0].teacher.id);
+
+        clearInterval(intervalId); // zaustavi interval kada imamo podatak
+      }
+    }, 10); // proverava svakih 500 milisekundi (pola sekunde)
+
+    this.masterService.onCountChanged().subscribe(value => {
+      console.log("Ovo je stiglo iz deteta:", value);
+      this.extraMasterClasses = value;
+    })
   }
 
   ngAfterViewInit() {
@@ -131,11 +152,13 @@ export class HomeComponent implements OnInit {
   };
 
 
-  constructor(private teacherService: TeachersService, private subjectService: SubjectService, private distributionService: DistributionService, private schoolYearService: SchoolYearService) {
+  constructor(private teacherService: TeachersService, private subjectService: SubjectService, private distributionService: DistributionService, private schoolYearService: SchoolYearService, private masterService: MasterClassService) {
     this.dataSource = new MatTableDataSource<any>();
   }
 
   ngOnInit(): void {
+
+    this.loadTotalClassesAsync();
 
     setTimeout(() => {
       // MASTER modal reset
@@ -200,6 +223,8 @@ export class HomeComponent implements OnInit {
 
 
   }
+
+
 
   showTeachers(): void {
     this.dataSource.data = this.teacherSummary;
