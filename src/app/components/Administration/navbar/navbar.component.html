@@ -13,7 +13,7 @@
           <a class="nav-link" routerLink="/subjects">Predmeti</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/distribution">Rapodela</a>
+          <a class="nav-link" routerLink="/distribution">Raspodela</a>
         </li>
 <!--        <li class="nav-item">-->
 <!--          <a class="nav-link" routerLink="/standardUser">Nastavnik</a>-->
@@ -51,6 +51,126 @@
           <input type="file" id="importFile" accept=".json" (change)="onFileSelected($event)" hidden>
         </li>
       </ul>
+
+      <!--   Gde cu da postavim aktivnu godinu  -->
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown">
+          <button
+            class="nav-link btn btn-outline-success fw-bold dropdown-toggle"
+            id="schoolYearDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            [ngClass]="{'active-year': isActiveYear(), 'inactive-year': !isActiveYear()}"
+          >
+            {{ activeYear }}
+          </button>
+
+
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="schoolYearDropdown">
+
+            <!-- Lista postojećih godina -->
+            <li *ngFor="let year of schoolYears" class="year-item">
+              <button
+                class="dropdown-item"
+                (click)="selectSchoolYear(year)"
+                [ngClass]="{'active-year': year.active, 'inactive-year': !year.active}"
+              >
+                {{ year.label }}
+              </button>
+            </li>
+
+
+            <li><hr class="dropdown-divider"></li>
+
+
+
+            <!-- Nova školska godina -->
+            <li>
+              <button
+                class="dropdown-item text-success fw-bold"
+                (click)="openCreateSchoolYear()"
+              >
+                + Nova školska godina
+              </button>
+            </li>
+
+          </ul>
+        </li>
+      </ul>
+
+
+
+      <!-- Modal -->
+      <div class="modal fade" id="schoolYearModal" tabindex="-1" aria-labelledby="schoolYearModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="schoolYearModalLabel">
+                {{createNewSchoolYear ? 'Dodaj Novu Školsku Godinu' : 'Izmeni Školsku Godinu'}}
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form [formGroup]="schoolYearForm">
+                <div class="mb-3">
+                  <label for="yearLabel" class="form-label">Oznaka</label>
+                  <input type="text" id="yearLabel" class="form-control" formControlName="label" placeholder="npr. 2026/2027">
+
+                  <div *ngIf="schoolYearForm.get('label')?.invalid && schoolYearForm.get('label')?.touched" class="text-danger">
+                    Oznaka godine je obavezna i mora biti u formatu 'yyyy/yyyy'
+                  </div>
+
+                </div>
+
+                <div class="mb-3">
+                  <label for="startDate" class="form-label">Datum početka</label>
+                  <input type="date" id="startDate" class="form-control" formControlName="startDate">
+
+                  <div *ngIf="schoolYearForm.get('startDate')?.invalid && schoolYearForm.get('startDate')?.touched" class="text-danger">
+                    Pocetak godine je obavezan
+                  </div>
+
+                </div>
+
+                <div class="mb-3">
+                  <label for="endDate" class="form-label">Datum završetka</label>
+                  <input type="date" id="endDate" class="form-control" formControlName="endDate">
+
+                  <div *ngIf="schoolYearForm.get('endDate')?.invalid && schoolYearForm.get('endDate')?.touched" class="text-danger">
+                    Zavrsetak godine je obavezan
+                  </div>
+
+                </div>
+
+
+                <!-- Dropdown za kopiranje raspodele -->
+                <div class="mb-3">
+                  <label for="copyFromYear" class="form-label">Kopiraj raspodelu od prethodnih godina ili dodaj praznu</label>
+                  <select id="copyFromYear" class="form-select" formControlName="copyFromYear">
+                    <option [value]="null" selected>Dodaj praznu godinu</option>
+                    <option *ngFor="let year of schoolYears" [value]="year.id">{{ year.label }}</option>
+                  </select>
+                </div>
+
+
+                <div class="form-check mb-3">
+                  <input type="checkbox" id="active" class="form-check-input" formControlName="active">
+                  <label for="active" class="form-check-label">
+                    Označi {{ schoolYearForm.get('label')?.value || '____/____' }} kao aktivnu godinu
+                  </label>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+              <button type="button" class="btn btn-primary" (click)="submitSchoolYear()">Napravi godinu</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <!-- Dugme za logout -->
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">

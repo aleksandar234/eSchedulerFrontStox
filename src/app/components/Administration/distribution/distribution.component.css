@@ -135,5 +135,74 @@ h2 {
 
 
 
+.segmented {
+  display: inline-flex;
+  border: 2px solid;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Dugmad unutar segmenta */
+.segmented button {
+  border-radius: 0;
+  min-width: 120px;
+  border: none;           /* VAŽNO */
+}
+
+/* Unutrašnje linije */
+.segmented button:not(:last-child) {
+  border-right: 2px solid;
+}
+
+/* Aktivni segment */
+.segmented button.active {
+  color: white;
+}
+
+/* ZIMSKI (plava) */
+
+.segmented.winter button.active {
+  background-color: #1dd6f2;
+}
+
+/* LETNJI (narandžasta) */
+
+.segmented.summer button.active {
+  background-color: #ff6f61;
+}
+
+/* CELA GODINA (neutralna) */
+
+.segmented.all button.active {
+  background-color: #607d8b;
+}
+
+/* Lepša tranzicija */
+.segmented,
+.segmented button {
+  transition: all 0.2s ease;
+}
+
+.segmented button {
+  color: black;       /* crni tekst za sve dugmad */
+  border-radius: 0;
+  min-width: 120px;
+  border: none;
+}
+
+/* Aktivno dugme i dalje ima pozadinu */
+.segmented button.active {
+  color: white;       /* ili možeš staviti crni ako želiš kontrast manje agresivan */
+}
+
+.segmented button:disabled {
+  background-color: #e0e0e0 !important; /* svetlo siva */
+  color: #757575;           /* tamno siva tekst */
+  cursor: not-allowed;
+  border-color: #bdbdbd;    /* siva ivica */
+}
+
+
+
 
 

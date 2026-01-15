@@ -9,10 +9,18 @@ import {Distribution} from '../../../models/distribution.model';
 import {TeachersService} from '../../../services/teacher/teachers.service';
 import {SubjectService} from '../../../services/subject/subject.service';
 import {DistributionService} from '../../../services/distribution/distribution.service';
+import {SchoolYearService} from '../../../services/schoolYear/school-year.service';
+import {SchoolYear} from '../../../models/schoolYear.model';
+import {CommonModule} from '@angular/common';
+import * as bootstrap from 'bootstrap';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Modal} from 'bootstrap';
+import {MatSnackBar} from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterModule],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule],
   templateUrl: './navbar.component.html',
   standalone: true,
   styleUrl: './navbar.component.css'
@@ -23,17 +31,56 @@ export class NavbarComponent implements OnInit{
   subjects: Subject[] = [];
   distributions: Distribution[] = [];
   teacherSummary: TeacherSummary[] = [];
+  activeYear: string = "";
+  schoolYears: SchoolYear[] = [];
+  createNewSchoolYear: boolean = false;
+  schoolYearForm: FormGroup;
+  selectedYear: SchoolYear | null = null;
 
   constructor(
     private authService: AuthService,
     private teacherService: TeachersService,
     private subjectService: SubjectService,
-    private distributionService: DistributionService
-
+    private distributionService: DistributionService,
+    private schoolYearService: SchoolYearService,
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar
   ) {
+    this.schoolYearForm = this.fb.group({
+      // oznaka npr. "2025/2026"
+      label: ['', [Validators.required, Validators.pattern(/^\d{4}\/\d{4}$/)]],
+
+      // datum početka
+      startDate: ['', Validators.required],
+
+      // datum završetka
+      endDate: ['', Validators.required],
+
+      // checkbox za aktivnu godinu
+      active: [false],
+
+      // forma za biracnje kopiranja godine
+      copyFromYear: [null]
+    });
+
+  }
+
+  closeModal() {
+    const modalEl = document.getElementById('schoolYearModal');
+    if(modalEl) {
+      const modal = Modal.getInstance(modalEl);
+      modal?.hide();
+    }
   }
 
   ngOnInit(): void {
+
+    this.schoolYearService.selectedYear$.subscribe(year => {
+      if (year) {
+        this.activeYear = year.label; // npr. "2025/2026"
+      }
+    });
+
     this.teacherService.getTeachers().subscribe((teachers) => {
       this.teachers = teachers;
       this.teacherSummary = this.teachers.map((teachers)=>({
@@ -78,6 +125,56 @@ export class NavbarComponent implements OnInit{
         }
       });
     });
+
+    this.schoolYearService.getActiveSchoolYear().subscribe({
+      next: (data) => {
+        this.activeYear = data.oznaka
+        console.log("AC:", data)
+      },
+      error: (err) => {
+        console.error("Greska pri učitavanju aktivne godine", err);
+      }
+    })
+
+    this.schoolYearService.getAllSchoolYears().subscribe({
+      next: (data) => {
+        this.schoolYears = data;
+        this.schoolYears.sort((a, b) => {
+          const yearA = parseInt(a.label.split('/')[0], 10);
+          const yearB = parseInt(b.label.split('/')[0], 10);
+          return yearB - yearA; // najveća godina gore
+        });
+        console.log("SY:", this.schoolYears)
+        const activeYear = this.schoolYears.find(year => year.label === this.activeYear)
+        if (activeYear) {
+          // TypeScript sada zna da activeYear nije undefined
+          this.selectSchoolYear(activeYear);
+        } else {
+          // fallback ako nije pronađena odgovarajuća godina
+          if (this.schoolYears.length > 0) {
+            this.selectSchoolYear(this.schoolYears[0]);
+          }
+        }
+      },
+      error: (err) => {
+        console.error("Greska pri učitavanju aktivne godine", err);
+      }
+    })
+
+
+
+  }
+
+  retrieveActiveSchoolYear() {
+    this.schoolYearService.getActiveSchoolYear().subscribe({
+      next: (data) => {
+        this.activeYear = data.oznaka
+        console.log("AC:", data)
+      },
+      error: (err) => {
+        console.error("Greska pri učitavanju aktivne godine", err);
+      }
+    })
   }
 
 
@@ -320,6 +417,128 @@ export class NavbarComponent implements OnInit{
     reader.readAsText(file);
   }
 
+
+  selectSchoolYear(year: SchoolYear) {
+    this.schoolYearService.setYear(year);
+  }
+
+  isActiveYear(): boolean {
+    if (!this.schoolYears || !this.activeYear) return false;
+    const active = this.schoolYears.find(y => y.label === this.activeYear);
+    return active ? active.active : false;
+  }
+
+  openCreateSchoolYear() {
+      this.createNewSchoolYear = true;
+      this.schoolYearForm.reset({
+        label: '',
+        startDate: '',
+        endDate: '',
+        active: false,
+        copyFromYear: null
+      });
+
+      const modal = new bootstrap.Modal(document.getElementById('schoolYearModal')!);
+      modal.show();
+  }
+
+  submitSchoolYear() {
+    const formData = this.schoolYearForm.value;
+    console.log("FormData:", formData);
+    if(this.schoolYearForm.invalid) {
+      this.schoolYearForm.markAllAsTouched();
+      return;
+    }
+
+    // Pravim svoj model
+    const newSchoolYear = {
+      label: formData.label,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      active: formData.active,
+      copyFromYear: formData.copyFromYear
+    }
+
+    console.log("NewSchoolYear:", newSchoolYear);
+
+    // Proveravamo sta dalje da radimo na osnovu godine koju su uneli ili nisu
+    if(newSchoolYear.copyFromYear === null) {
+      // Ovo znaci da je korisnik uneo da zeli da napravi praznu skolsku godinu
+      this.createEmptySchoolYear(newSchoolYear);
+    } else {
+      // Ovo znaci da korisnik zeli da prekopira neku od prethodnih godina
+      this.copyPreviousSchoolYear(newSchoolYear);
+    }
+
+
+  }
+
+  copyPreviousSchoolYear(formData: any) {
+    const targetYear = {
+      id: null,
+      oznaka: formData.label,
+      datum_pocetka: formData.startDate,
+      datum_zavrsetka: formData.endDate,
+      aktivna: formData.active
+    }
+
+    const sourceYearId = formData.copyFromYear;
+    this.schoolYearService.createCopiedSchoolYear(targetYear, sourceYearId).subscribe({
+      next: (res) => {
+        console.log("Skolska godina kreirana:", res);
+
+        this.closeModal();
+
+        this.snackBar.open('Uspešno ste kreirali godinu!', 'Zatvori', {
+          duration: 5000,
+          panelClass: ['success-snackbar']
+        });
+
+        // this.retrieveActiveSchoolYear();
+
+        window.location.reload();
+
+      },
+      error: () => {
+      console.error('Greska prilikom kreiranja godine')
+    }
+    })
+
+  }
+
+  createEmptySchoolYear(formData: any) {
+
+    // Ovde pravim novu godinu bez coyParametra, jer znam da mi je null, zato sam i usao u pravljenje prazne skolske godine
+    const newYear = {
+      oznaka: formData.label,
+      datum_pocetka: formData.startDate,
+      datum_zavrsetka: formData.endDate,
+      aktivna: formData.active
+    }
+
+    this.schoolYearService.createEmptySchoolYear(newYear).subscribe({
+      next: (res) => {
+        console.log('Skolska godina kreirana:', res);
+
+        this.closeModal();
+
+        this.snackBar.open('Uspešno ste kreirali godinu!', 'Zatvori', {
+          duration: 5000,
+          panelClass: ['success-snackbar']
+        });
+
+        // this.retrieveActiveSchoolYear();
+
+        window.location.reload();
+      },
+        error: () => {
+        console.error('Greska prilikom kreiranja godine')
+      }
+
+
+    });
+
+  }
 
 
 }

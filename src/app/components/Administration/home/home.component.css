@@ -99,4 +99,27 @@ table{
   font-weight: bold;
 }
 
+.summary-title-row {
+  position: relative;       /* omogućava apsolutno pozicioniranje dugmeta */
+  display: flex;
+  justify-content: center;  /* naslov centriran */
+  align-items: center;
+  margin: 20px 0 10px;
+}
+
+.summary-title {
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Dugme desno, ne pomera naslov */
+.add-btn {
+  position: absolute;
+  right: 420px;
+  background-color: #4CAF50 !important; /* zelena boja */
+  color: white !important;
+}
+
+
 

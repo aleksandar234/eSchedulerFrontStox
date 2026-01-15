@@ -9,7 +9,43 @@
           <input matInput (keyup)="applyFilter($event)" placeholder="Enter search term">
         </mat-form-field>
 
+        <div
+          class="segmented"
+          [ngClass]="{
+              'winter': selected === 'WINTER',
+              'summer': selected === 'SUMMER',
+              'all': selected === 'ALL'
+            }"
+        >
+          <button
+            mat-button
+            [class.active]="selected === 'ALL'"
+            (click)="setSemester('ALL')"
+          >
+            Cela godina
+          </button>
+
+          <button
+            mat-button
+            [class.active]="selected === 'WINTER'"
+            (click)="setSemester('WINTER')"
+          >
+            Zimski semestar
+          </button>
+
+          <button
+            mat-button
+            [class.active]="selected === 'SUMMER'"
+            (click)="setSemester('SUMMER')"
+          >
+            Letnji semestar
+          </button>
+        </div>
+
         <div style="text-align: center; display: flex; gap: 10px;">
+
+
+
           <button mat-raised-button color="accent" (click) ="openAddSubjectModal()"
                   style="background-color: green; color: white; padding: 10px 20px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">

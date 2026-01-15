@@ -25,4 +25,8 @@ export class TeachersService {
     return this.httpClient.delete<Teacher>(`${environment.apiUrl}/teachers/${teacherId}`);
   }
 
+  getTeachersByYear(year: number): Observable<Teacher[]> {
+    return this.httpClient.get<Teacher[]>(`${environment.apiUrl}/teachers/school-year/${year}`)
+  }
+
 }

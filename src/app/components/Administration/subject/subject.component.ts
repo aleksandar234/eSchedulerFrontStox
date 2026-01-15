@@ -21,6 +21,8 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {SubjectService} from '../../../services/subject/subject.service';
 import {Subject} from '../../../models/subject.model';
+import {SchoolYearService} from '../../../services/schoolYear/school-year.service';
+import {AppComponent} from '../../../app.component';
 
 @Component({
   selector: 'app-subject',
@@ -30,6 +32,13 @@ import {Subject} from '../../../models/subject.model';
   styleUrl: './subject.component.css'
 })
 export class SubjectComponent implements OnInit,AfterViewInit{
+
+  charMap: Record<string, string[]> = {
+    'c': ['c', 'č', 'ć'],
+    's': ['s', 'š'],
+    'z': ['z', 'ž']
+  };
+
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any>;
   subjectForm: FormGroup;
@@ -41,6 +50,9 @@ export class SubjectComponent implements OnInit,AfterViewInit{
   studyPrograms: Array<string> = [];
   useStudyProgramDropdown: boolean = false;
   mandatory: Array<string> = [];
+  isActive: boolean = false;
+  allSubjectsFromBack: Subject[] = [];
+  selected: "WINTER" | "SUMMER" | "ALL" = "ALL";
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -61,7 +73,9 @@ export class SubjectComponent implements OnInit,AfterViewInit{
   constructor(private subjectService: SubjectService,
               private formBuilder: FormBuilder,
               private snackBar: MatSnackBar,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private schoolYearState: SchoolYearService,
+              private appComponet: AppComponent) {
     this.dataSource = new MatTableDataSource<any>();
     this.subjectForm = formBuilder.group({
       name: ['',Validators.required],
@@ -77,7 +91,20 @@ export class SubjectComponent implements OnInit,AfterViewInit{
   }
 
 
+
+
   openAddSubjectModal() {
+    if(!this.schoolYearState.isSelectedYearActive()) {
+      this.appComponet.openConfirmModal(() => {
+        this.addSubject();
+      });
+      return;
+    } else {
+      this.addSubject();
+    }
+  }
+
+  addSubject() {
     this.createNewSubject = true;
     this.subjectForm.reset();
     this.studyPrograms = Array.from(new Set(this.subjects.map(subject => subject.studyProgram))).sort((a, b) => a.length - b.length);;
@@ -91,6 +118,17 @@ export class SubjectComponent implements OnInit,AfterViewInit{
   }
 
   editSubject(subject: any) {
+    if(!this.schoolYearState.isSelectedYearActive()) {
+      this.appComponet.openConfirmModal(() => {
+        this.openEditSubjectModal(subject);
+      });
+      return;
+    } else {
+      this.openEditSubjectModal(subject);
+    }
+  }
+
+  openEditSubjectModal(subject: any) {
     this.subjectId = subject.id;
     this.createNewSubject = false;
     this.studyPrograms = Array.from(new Set(this.subjects.map(subject => subject.studyProgram))).sort((a, b) => a.length - b.length);
@@ -116,10 +154,22 @@ export class SubjectComponent implements OnInit,AfterViewInit{
   }
 
   openDeleteModal(subject: Subject): void {
-    this.subjectId = subject.id;
-    this.subjectName = subject.name;
-    const modal = new Modal(document.getElementById('confirmDeleteModal')!);
-    modal.show();
+
+    if(!this.schoolYearState.isSelectedYearActive()) {
+      this.appComponet.openConfirmModal(() => {
+        this.subjectId = subject.id;
+        this.subjectName = subject.name;
+        const modal = new Modal(document.getElementById('confirmDeleteModal')!);
+        modal.show();
+      });
+      return;
+    } else {
+      this.subjectId = subject.id;
+      this.subjectName = subject.name;
+      const modal = new Modal(document.getElementById('confirmDeleteModal')!);
+      modal.show();
+    }
+
   }
 
   deleteSubject() {
@@ -215,19 +265,89 @@ export class SubjectComponent implements OnInit,AfterViewInit{
     tooltipTriggerList.map((tooltipTriggerEl) => new Tooltip(tooltipTriggerEl));
   }
 
+
+
+  // ngOnInit(): void {
+  //   this.subjectService.getSubjects().subscribe(
+  //     (subjects) => {
+  //       this.allSubjectsFromBack = subjects;
+  //       this.subjects = subjects;
+  //       this.applySemesterFilter(subjects);
+  //       this.dataSource.data = this.subjects;
+  //     });
+  //   this.displayedColumns = ['name', 'studyProgram', 'semester','lectureHours','exerciseHours','practicumHours','mandatory','lectureSessions','exerciseSessions','actions'];
+  // }
+
+
   ngOnInit(): void {
-    this.subjectService.getSubjects().subscribe(
-      (subjects) => {
-        this.subjects = subjects;
-        this.dataSource.data = this.subjects;
+    this.schoolYearState.selectedYear$
+      .subscribe((year) => {
+        if(!year) return; // ako nije izabrana godina nista ne radimo
+
+        // Dohvatam predmete za izabranu skolsku godinu
+        this.subjectService.getSubjectsByYear(year.id).subscribe(
+          (subjects) => {
+            this.allSubjectsFromBack = subjects;
+            this.subjects = subjects;
+            this.applySemesterFilter(subjects);
+            this.dataSource.data = this.subjects;
+          }
+        );
       });
-    this.displayedColumns = ['name', 'studyProgram', 'semester','lectureHours','exerciseHours','practicumHours','mandatory','lectureSessions','exerciseSessions','actions'];
+
+    this.displayedColumns = ['name', 'studyProgram', 'semester', 'lectureHours', 'exerciseHours','practicumHours','mandatory','lectureSessions','exerciseSessions','actions']
   }
 
-  applyFilter(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  setSemester(value: "WINTER" | "SUMMER" | "ALL") {
+    this.selected = value;
+    this.applySemesterFilter(this.allSubjectsFromBack);
+    this.dataSource.data = this.subjects;
   }
+
+
+  applySemesterFilter(subjects: Subject[]): void {
+    switch (this.selected) {
+      case "WINTER":
+        this.subjects = subjects.filter(s => s.semester % 2 === 1);
+        break;
+      case "SUMMER":
+        this.subjects = subjects.filter(s => s.semester % 2 === 0);
+        break;
+      case "ALL":
+        this.subjects = subjects;
+        break;
+    }
+  }
+
+  mapChar(char: string): string[] {
+    char = char.toLowerCase();
+    return this.charMap[char] || [char];
+  }
+
+  buildSearchRegex(str: string): RegExp {
+    const pattern = str
+      .split('')
+      .map(c => this.mapChar(c).join('')) // napravi [cčć] za svako slovo
+      .map(chars => `[${chars}]`)     // regex pattern za jedno slovo
+      .join('');
+    return new RegExp(pattern, 'i');  // i → case insensitive
+  }
+
+
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value.trim();
+
+    // napravi regex
+    const regex = this.buildSearchRegex(filterValue);
+
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      return Object.keys(data).some(key => regex.test(data[key]));
+    };
+
+    this.dataSource.filter = filterValue; // obavezno dodeljuj nešto, Angular trigeruje filter
+  }
+
   changeVisibilityStudyProgram(){
     this.useStudyProgramDropdown = !this.useStudyProgramDropdown;
   }

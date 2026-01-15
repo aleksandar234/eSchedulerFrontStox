@@ -7,3 +7,21 @@
 .navbar .dropdown-toggle {
   cursor: pointer;
 }
+
+.year-item {
+  text-align: center;
+}
+
+.active-year {
+  color: #008100;
+  font-weight: bold;
+}
+
+.inactive-year {
+  color: darkred;
+}
+
+.schoolYearDropdown:hover {
+  background-color: #6c757d !important; /* siva boja na hover */
+}
+

@@ -13,6 +13,8 @@ import {Modal, Tooltip} from 'bootstrap';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {User} from '../../../models/user.model';
+import {SchoolYearService} from '../../../services/schoolYear/school-year.service';
+import {AppComponent} from '../../../app.component';
 
 @Component({
   selector: 'app-teacher',
@@ -47,7 +49,9 @@ export class TeacherComponent implements OnInit,AfterViewInit{
   constructor(private teacherService: TeachersService,
               private formBuilder: FormBuilder,
               private snackBar: MatSnackBar,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private schoolYearState: SchoolYearService,
+              private appComponent: AppComponent) {
     this.dataSource = new MatTableDataSource<any>();
     this.teacherForm = formBuilder.group({
       firstName: ['',Validators.required],
@@ -59,6 +63,18 @@ export class TeacherComponent implements OnInit,AfterViewInit{
   }
 
   openAddTeacherModal() {
+    if(!this.schoolYearState.isSelectedYearActive()) {
+      this.appComponent.openConfirmModal(() => {
+        this.addTeacher();
+      });
+      return;
+    } else {
+      this.addTeacher();
+    }
+
+  }
+
+  addTeacher() {
     this.createNewTeacher = true;
     this.teacherForm.reset();
     this.teacherTitles = Array.from(new Set(this.teachers.map(teacher => teacher.title)));
@@ -74,7 +90,21 @@ export class TeacherComponent implements OnInit,AfterViewInit{
       isAdmin: false
     });
   }
+
+
   editTeacher(teacher: any) {
+    if(!this.schoolYearState.isSelectedYearActive()) {
+      this.appComponent.openConfirmModal(() => {
+        this.openEditTeacherModal(teacher);
+      });
+      return;
+    } else {
+      this.openEditTeacherModal(teacher);
+    }
+
+  }
+
+  openEditTeacherModal(teacher: any) {
     console.log(teacher);
     this.teacherId = teacher.id;
     this.createNewTeacher = false;
@@ -99,10 +129,21 @@ export class TeacherComponent implements OnInit,AfterViewInit{
   }
 
   openDeleteModal(teacher: Teacher): void {
-    this.teacherId = teacher.id;
-    this.teacherName = teacher.firstName;
-    const modal = new Modal(document.getElementById('confirmDeleteModal')!);
-    modal.show();
+    if(!this.schoolYearState.isSelectedYearActive()) {
+      this.appComponent.openConfirmModal(() => {
+        this.teacherId = teacher.id;
+        this.teacherName = teacher.firstName;
+        const modal = new Modal(document.getElementById('confirmDeleteModal')!);
+        modal.show();
+      });
+      return;
+    } else {
+      this.teacherId = teacher.id;
+      this.teacherName = teacher.firstName;
+      const modal = new Modal(document.getElementById('confirmDeleteModal')!);
+      modal.show();
+    }
+
   }
 
   deleteTeacher() {
@@ -184,24 +225,52 @@ export class TeacherComponent implements OnInit,AfterViewInit{
     tooltipTriggerList.map((tooltipTriggerEl) => new Tooltip(tooltipTriggerEl));
   }
 
-  ngOnInit(): void {
-    this.teacherService.getTeachers().subscribe((teachers) => {
-      this.teachers = teachers;
-      this.dataSource.data = this.teachers;
-    });
-    this.displayedColumns = ['firstName', 'lastName', 'title','email','actions'];
+  // ngOnInit(): void {
+  //   this.teacherService.getTeachers().subscribe((teachers) => {
+  //     this.teachers = teachers;
+  //     this.dataSource.data = this.teachers;
+  //   });
+  //   this.displayedColumns = ['firstName', 'lastName', 'title','email','actions'];
+  //
+  //   this.teacherForm.get('firstName')?.valueChanges.subscribe(() => {
+  //     if (this.createNewTeacher) {
+  //       this.updateEmail();
+  //     }
+  //   });
+  //
+  //   this.teacherForm.get('lastName')?.valueChanges.subscribe(() => {
+  //     if (this.createNewTeacher) {
+  //       this.updateEmail();
+  //     }
+  //   });
+  // }
 
-    this.teacherForm.get('firstName')?.valueChanges.subscribe(() => {
-      if (this.createNewTeacher) {
-        this.updateEmail();
-      }
-    });
+  ngOnInit() {
+    this.schoolYearState.selectedYear$
+      .subscribe((year) => {
+        if(!year) return; // Ako nije izabrana godina nista ne radimo
 
-    this.teacherForm.get('lastName')?.valueChanges.subscribe(() => {
-      if (this.createNewTeacher) {
-        this.updateEmail();
-      }
-    });
+        // Dohvatam profesore za izabranu godinu
+        this.teacherService.getTeachersByYear(year.id).subscribe((teachers) => {
+          this.teachers = teachers;
+          this.dataSource.data = this.teachers;
+        })
+
+        this.displayedColumns = ['firstName', 'lastName', 'title', 'email', 'actions'];
+
+        this.teacherForm.get('firstName')?.valueChanges.subscribe(() => {
+          if(this.createNewTeacher) {
+            this.updateEmail()
+          }
+        });
+
+        this.teacherForm.get('lastName')?.valueChanges.subscribe(() => {
+          if(this.createNewTeacher) {
+            this.updateEmail();
+          }
+        })
+
+      })
   }
 
   applyFilter(event: Event) {

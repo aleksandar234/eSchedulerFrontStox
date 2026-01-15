@@ -9,6 +9,43 @@
           <input matInput #searchInput (keyup)="applyFilter($event)" placeholder="Enter search term">
         </mat-form-field>
 
+
+        <div
+          class="segmented"
+          [ngClass]="{
+              'winter': selected === 'WINTER',
+              'summer': selected === 'SUMMER',
+              'all': selected === 'ALL'
+            }"
+        >
+          <button
+            mat-button
+            [disabled]= "activeOption === 'second'"
+            [class.active]="selected === 'ALL'"
+            (click)="setSemester('ALL')"
+          >
+            Cela godina
+          </button>
+
+          <button
+            mat-button
+            [disabled]= "activeOption === 'second'"
+            [class.active]="selected === 'WINTER'"
+            (click)="setSemester('WINTER')"
+          >
+            Zimski semestar
+          </button>
+
+          <button
+            mat-button
+            [disabled]= "activeOption === 'second'"
+            [class.active]="selected === 'SUMMER'"
+            (click)="setSemester('SUMMER')"
+          >
+            Letnji semestar
+          </button>
+        </div>
+
         <!-- Toggle Buttons -->
         <div style="display: flex; gap: 20px; justify-content: center; align-items: center;">
           <span class="toggle-text" [class.active]="activeOption === 'first'" (click)="setFirstActive()">

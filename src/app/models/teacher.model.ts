@@ -1,8 +1,8 @@
 export interface Teacher {
   id: number;
-  email: string;
   firstName: string;
   lastName: string;
+  email: string;
   title: string;
   isAdmin: boolean;
 }

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
@@ -17,6 +17,8 @@ import {DistributionService} from '../../../services/distribution/distribution.s
 import {MatButtonModule} from '@angular/material/button';
 import {MatSortModule} from '@angular/material/sort';
 import {NgSelectModule} from '@ng-select/ng-select';
+import {SchoolYearService} from '../../../services/schoolYear/school-year.service';
+import {AppComponent} from '../../../app.component';
 
 @Component({
   selector: 'app-distribution',
@@ -38,6 +40,11 @@ export class DistributionComponent implements OnInit, AfterViewInit{
   distributionId: number = 0;
   classTypes: Array<string> = [];
   activeOption: string = 'first';
+  selected: "ALL" | "WINTER" | "SUMMER" = "ALL";
+  allDistributions: Distribution[] = [];
+  filteredDistributions: Distribution[] = [];
+  selectedYear: string = "0";
+  selectedYearId: number = 0;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -63,7 +70,9 @@ export class DistributionComponent implements OnInit, AfterViewInit{
               private distributionService: DistributionService,
               private formBuilder: FormBuilder,
               private snackBar: MatSnackBar,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private schoolYearService: SchoolYearService,
+              private appComponent: AppComponent) {
     this.dataSource = new MatTableDataSource<any>();
     this.distributionForm = formBuilder.group({
       teacher: ['',Validators.required],
@@ -99,6 +108,17 @@ export class DistributionComponent implements OnInit, AfterViewInit{
   }
 
   editDistribution(row: any) {
+    if(!this.schoolYearService.isSelectedYearActive()) {
+      this.appComponent.openConfirmModal(() => {
+        this.openEditDistributionModal(row);
+      });
+      return;
+    } else {
+      this.openEditDistributionModal(row);
+    }
+  }
+
+  openEditDistributionModal(row: any) {
     this.distributionId = row.id;
     this.createNewDistribution = false;
     this.classTypes = Array.from(new Set(this.distributions.map(distribution => distribution.classType)));
@@ -122,6 +142,17 @@ export class DistributionComponent implements OnInit, AfterViewInit{
   }
 
   openDeleteModal(distribution: Distribution): void {
+    if(!this.schoolYearService.isSelectedYearActive()) {
+      this.appComponent.openConfirmModal(() => {
+        this.deleteModal(distribution);
+      });
+      return;
+    } else {
+      this.deleteModal(distribution);
+    }
+  }
+
+  deleteModal(distribution: Distribution): void {
     this.distributionId = distribution.id;
     console.log(distribution);
     this.distributionSubject = ""+distribution.subject;
@@ -222,23 +253,101 @@ export class DistributionComponent implements OnInit, AfterViewInit{
     tooltipTriggerList.map((tooltipTriggerEl) => new Tooltip(tooltipTriggerEl));
   }
 
+  // ngOnInit(): void {
+  //
+  //   this.distributionService.getDistributions().subscribe((distributions) => {
+  //     this.allDistributions = distributions;
+  //     console.log("AllDis:", this.allDistributions)
+  //     this.applySemesterFilter();
+  //     this.dataSource.data = this.mapDistributionsToDataSource(this.allDistributions);
+  //   });
+  //   this.displayedColumns = ['teacher','email','subject', 'studyProgram', 'semester', 'countHours','sessionCount' ,'classType','actions'];
+  //
+  //   this.teacherService.getTeachers().subscribe((teachers) => {
+  //     this.teachers = teachers.map(teacher => ({
+  //       ...teacher,
+  //       fullName: `${teacher.firstName} ${teacher.lastName}`,
+  //     }));
+  //   });
+  //
+  //   this.subjectService.getSubjects().subscribe((subjects) =>{
+  //     this.subjects = subjects;
+  //   } );
+  // }
+
   ngOnInit(): void {
-    this.distributionService.getDistributions().subscribe((distributions) => {
-      this.distributions = distributions;
-      this.dataSource.data = this.mapDistributionsToDataSource(distributions);
-    });
-    this.displayedColumns = ['teacher','email','subject', 'studyProgram', 'semester', 'countHours','sessionCount' ,'classType','actions'];
+    this.schoolYearService.selectedYear$
+      .subscribe((year) => {
+        if(!year) return; // ako nije izabrana godina nista ne radimo
+        this.selectedYear = year.label
+        this.selectedYearId = year.id;
 
-    this.teacherService.getTeachers().subscribe((teachers) => {
-      this.teachers = teachers.map(teacher => ({
-        ...teacher,
-        fullName: `${teacher.firstName} ${teacher.lastName}`,
-      }));
-    });
+        console.log("Selektovana godina:", this.selectedYear);
+        // Dohvatam predmete za izabranu skolsku godinu
+        this.distributionService.getDistributionsByYear(year.id).subscribe((distributions) => {
+          this.allDistributions = distributions;
+          this.applySemesterFilter();
+          this.dataSource.data = this.mapDistributionsToDataSource(this.allDistributions);
+        })
+        this.displayedColumns = ['teacher', 'email', 'subject', 'studyProgram', 'semester', 'countHours','sessionCount' ,'classType','actions'];
+      //
+        this.teacherService.getTeachersByYear(year.id).subscribe((teachers) => {
+          this.teachers = teachers.map(teacher => ({
+            ...teacher,
+            fullName: `${teacher.firstName} ${teacher.lastName}`,
+          }));
+        });
 
-    this.subjectService.getSubjects().subscribe((subjects) =>{
-      this.subjects = subjects;
-    } );
+        this.subjectService.getSubjectsByYear(year.id).subscribe((subjects) => {
+          this.subjects = subjects;
+        })
+      //
+      });
+
+
+  }
+
+
+  setSemester(value: "WINTER" | "SUMMER" | "ALL") {
+    this.selected = value;
+
+
+    const semesterFiltered = this.getSemesterFiltered();
+
+    if(this.activeOption === 'first') {
+      // this.applySemesterFilter();
+      this.dataSource.data = this.mapDistributionsToDataSource(semesterFiltered);
+    }
+
+  }
+
+  private getSemesterFiltered(): Distribution[] {
+    switch (this.selected) {
+      case "WINTER":
+        return this.allDistributions.filter(d => d.subject.semester % 2 === 1);
+      case "SUMMER":
+        return this.allDistributions.filter(d => d.subject.semester % 2 === 0);
+      case "ALL":
+      default:
+        return [...this.allDistributions];
+    }
+  }
+
+
+  applySemesterFilter() {
+
+      switch (this.selected) {
+        case "WINTER":
+          this.distributions = this.allDistributions.filter(distribution => distribution.subject.semester % 2 === 1);
+          break;
+        case "SUMMER":
+          this.distributions = this.allDistributions.filter(distribution => distribution.subject.semester % 2 === 0);
+          break;
+        case "ALL":
+          this.distributions = this.allDistributions;
+          break;
+    }
+
   }
 
   applyFilter(event: Event) {
@@ -266,28 +375,103 @@ export class DistributionComponent implements OnInit, AfterViewInit{
       };
     });
   }
+  //
+  // setFirstActive(): void {
+  //   this.activeOption = 'first';
+  //   this.selected = "ALL";
+  //   this.schoolYearService.selectedYear$
+  //     .subscribe((year) => {
+  //       if (!year) return; // ako nije izabrana godina nista ne radimo
+  //
+  //       this.distributionService.getDistributionsByYear(year.id).subscribe((distributions) => {
+  //         this.distributions = distributions;
+  //         this.dataSource.data = this.mapDistributionsToDataSource(distributions);
+  //       })
+  //
+  //       this.displayedColumns = ['teacher','subject', 'studyProgram', 'semester', 'countHours','sessionCount' ,'classType','actions'];
+  //
+  //   });
+  // }
+
+  applyActiveTabFilter(): void {
+    if (this.activeOption === 'second') {
+      this.filteredDistributions = this.filterDistributions(this.allDistributions);
+    } else {
+      this.filteredDistributions = this.mapDistributionsToDataSource(this.allDistributions);
+    }
+
+    this.dataSource.data = this.filteredDistributions;
+  }
+
 
   setFirstActive(): void {
+    console.log("Selektovana godina s1:", this.selectedYear)
     this.activeOption = 'first';
-    this.distributionService.getDistributions().subscribe((distributions) => {
-      this.distributions = distributions;
-      this.dataSource.data = this.mapDistributionsToDataSource(distributions);
-    });
-    this.displayedColumns = ['teacher','subject', 'studyProgram', 'semester', 'countHours','sessionCount' ,'classType','actions'];
+    this.displayedColumns = [
+      'teacher','subject','studyProgram',
+      'semester','countHours','sessionCount',
+      'classType','actions'
+    ];
+    this.applyActiveTabFilter();
   }
+
+
+
 
   setSecondActive(): void {
     this.activeOption = 'second';
-    this.distributionService.getDistributions().subscribe(
-      (distributions) => {
+    console.log(this.selectedYear)
+    console.log(this.selectedYearId)
+    this.distributions = [];  // resetuj prethodne podatke
+    this.allDistributions = [];
+    this.dataSource.data = [];
+
+    this.distributionService.getDistributionsByYear(this.selectedYearId)
+      .subscribe(distributions => {
+        this.allDistributions = distributions; // čuvaj u globalnu promenljivu
         this.dataSource.data = this.filterDistributions(distributions);
-      },
-      (error) => {
-        console.error('Došlo je do greške pri učitavanju distribucija:', error);
-      }
-    );
-    this.displayedColumns = ['name','studyProgram', 'mismatchType', 'mismatchCount','actions'];
+        console.log("Data:",this.dataSource.data);
+      });
+
+
+
+    this.displayedColumns = ['name','studyProgram','mismatchType','mismatchCount','actions'];
   }
+
+
+
+  // this.distributionService.getDistributions().subscribe(
+    //   (distributions) => {
+    //     this.dataSource.data = this.filterDistributions(distributions);
+    //   },
+    //   (error) => {
+    //     console.error('Došlo je do greške pri učitavanju distribucija:', error);
+    //   }
+    // );
+    // this.displayedColumns = ['name','studyProgram', 'mismatchType', 'mismatchCount','actions'];
+  // }
+
+
+
+  getSemesterFilteredDistributions(): Distribution[] {
+    switch (this.selected) {
+      case 'WINTER':
+        return this.allDistributions.filter(
+          d => d.subject.semester % 2 === 1
+        );
+
+      case 'SUMMER':
+        return this.allDistributions.filter(
+          d => d.subject.semester % 2 === 0
+        );
+
+      case 'ALL':
+      default:
+        return [...this.allDistributions];
+    }
+  }
+
+
 
   onSubjectChange(event: Subject): void {
     this.distributionForm.patchValue({
@@ -297,8 +481,14 @@ export class DistributionComponent implements OnInit, AfterViewInit{
     });
   }
 
+
+
   filterDistributions(distributions: any[]): any[] {
     const filteredSubjects: any[] = [];
+
+    this.subjectService.getSubjectsByYear(this.selectedYearId).subscribe((subjects) => {
+      this.subjects = subjects;
+    })
 
     // Grupisanje distribucija po predmet + tip časa + studijski program
     const grouped = distributions.reduce((acc: any, distribution: any) => {
@@ -381,6 +571,12 @@ export class DistributionComponent implements OnInit, AfterViewInit{
         }
       }
     }
+
+    console.log('Filtered:', filteredSubjects.map(f => ({
+      name: f.name,
+      type: f.mismatchType
+    })));
+
 
     return filteredSubjects;
   }

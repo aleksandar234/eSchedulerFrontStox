@@ -1,0 +1,39 @@
+<div class="custom-summary-rows">
+
+  <div class="summary-title">
+    Master studije – nova aktivnost
+  </div>
+
+  <!-- Predmet -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Predmet na master studijama</mat-label>
+
+    <!-- Ako imaš listu predmeta -->
+    <mat-select [(ngModel)]="masterActivity.subject">
+      <mat-option value="Softversko inzenjerstvo">Softversko inženjerstvo</mat-option>
+      <mat-option value="Baze podataka">Baze podataka</mat-option>
+      <mat-option value="Vestacka inteligencija">Veštačka inteligencija</mat-option>
+    </mat-select>
+
+    <!-- Ako želiš običan input, zameni mat-select sa input -->
+    <!-- <input matInput [(ngModel)]="masterActivity.subject"> -->
+  </mat-form-field>
+
+  <!-- Broj časova -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Održano časova</mat-label>
+    <input matInput type="number" [(ngModel)]="masterActivity.hoursHeld" min="0">
+  </mat-form-field>
+
+  <!-- Dugmad -->
+  <div style="display: flex; gap: 10px; justify-content: flex-end;">
+    <button mat-raised-button color="primary" (click)="sacuvaj()">
+      Sačuvaj
+    </button>
+
+    <button mat-button color="warn" (click)="close.emit()">
+      Otkaži
+    </button>
+  </div>
+
+</div>

@@ -116,12 +116,74 @@ h2 {
 .styled-input:focus, .styled-select:focus {
   border-color: #80bdff;
   outline: 0;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  /*box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);*/
 }
 
 .styled-input::placeholder {
   color: #6c757d;
   opacity: 1;
 }
+
+.segmented {
+  display: inline-flex;
+  border: 2px solid;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Dugmad unutar segmenta */
+.segmented button {
+  border-radius: 0;
+  min-width: 120px;
+  border: none;           /* VAŽNO */
+}
+
+/* Unutrašnje linije */
+.segmented button:not(:last-child) {
+  border-right: 2px solid;
+}
+
+/* Aktivni segment */
+.segmented button.active {
+  color: white;
+}
+
+/* ZIMSKI (plava) */
+
+.segmented.winter button.active {
+  background-color: #1dd6f2;
+}
+
+/* LETNJI (narandžasta) */
+
+.segmented.summer button.active {
+  background-color: #ff6f61;
+}
+
+/* CELA GODINA (neutralna) */
+
+.segmented.all button.active {
+  background-color: #607d8b;
+}
+
+/* Lepša tranzicija */
+.segmented,
+.segmented button {
+  transition: all 0.2s ease;
+}
+
+.segmented button {
+  color: black;       /* crni tekst za sve dugmad */
+  border-radius: 0;
+  min-width: 120px;
+  border: none;
+}
+
+/* Aktivno dugme i dalje ima pozadinu */
+.segmented button.active {
+  color: white;       /* ili možeš staviti crni ako želiš kontrast manje agresivan */
+}
+
+
 
 

@@ -1,0 +1,52 @@
+<div class="modal fade" id="masterModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Master aktivnosti</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Tabela aktivnosti -->
+        <table class="table table-striped" *ngIf="masterClasses.length">
+          <thead>
+          <tr>
+            <th>Predmet</th>
+            <th>Broj časova</th>
+            <th>Datum održavanja</th>
+            <th>Datum unosa</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let mc of masterClasses">
+            <td>{{ mc.predmetNaMasterStudijama }}</td>
+            <td>{{ mc.odrzanoCasova }}</td>
+            <td>{{ mc.datumOdrzavanjaCasova }}</td>
+            <td>{{ mc.datumUnosa | date:'short' }}</td>
+          </tr>
+          </tbody>
+        </table>
+
+        <!-- Ukupan broj časova -->
+        <div
+          class="d-flex justify-content-end mt-3"
+          *ngIf="masterClasses.length"
+        >
+          <strong>
+            Ukupan broj časova: {{totalCount}}
+          </strong>
+        </div>
+
+
+        <!-- Ako nema unosa -->
+        <div *ngIf="masterClasses.length === 0" class="text-center text-muted">
+          Nema dodatnih časova na master studijama.
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

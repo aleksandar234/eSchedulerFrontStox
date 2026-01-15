@@ -13,7 +13,12 @@ export class DistributionService {
   constructor(private httpClient:HttpClient) { }
 
   getDistributions(): Observable<Distribution[]>{
-    return this.httpClient.get<Distribution[]>(`${environment.apiUrl}/distributions`);
+    return this.getDistributionsByYear(3);
+    // return this.httpClient.get<Distribution[]>(`${environment.apiUrl}/distributions`);
+  }
+
+  getDistributionsByYear(id: Number): Observable<Distribution[]> {
+    return this.httpClient.get<Distribution[]>(`${environment.apiUrl}/distributions/school-year/${id}`);
   }
 
   updateDistribution(distribution: Distribution): Observable<Distribution>{

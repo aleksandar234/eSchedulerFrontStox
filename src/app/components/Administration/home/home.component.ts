@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, NgModule, OnInit, ViewChild} from '@angular/core';
 import {Teacher} from '../../../models/teacher.model';
 import {Subject} from '../../../models/subject.model';
 import {TeachersService} from '../../../services/teacher/teachers.service';
@@ -16,26 +16,36 @@ import {TeacherSummary} from '../../../models/teacherSummary.model';
 import {MatMenuModule} from '@angular/material/menu';
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import {SchoolYearService} from '../../../services/schoolYear/school-year.service';
+import {MasterActivityComponent} from '../../../modules/master-activity/master-activity.component';
+import {DoctoralActivityComponent} from '../../../modules/doctoral-activity/doctoral-activity.component';
+import {FormsModule} from '@angular/forms';
+import {MasterClassModalComponent} from '../../master-class-modal/master-class-modal.component';
+import {Modal} from 'bootstrap';
+
 
 (pdfMake as any).vfs = pdfFonts;
 
 
-
-
-
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, NgIf, MatButtonModule, MatFormFieldModule, MatInputModule,MatMenuModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, NgIf, MatButtonModule, MatFormFieldModule, MatInputModule, MatMenuModule, MasterActivityComponent, DoctoralActivityComponent, FormsModule, MasterClassModalComponent],
   templateUrl: './home.component.html',
   standalone: true,
   styleUrl: './home.component.css'
 })
 
+
 export class HomeComponent implements OnInit {
+
+  @ViewChild('masterModal') masterModal!: MasterClassModalComponent;
+
+
   displayedColumns: string[] = [];
   dataSource: MatTableDataSource<any>;
   isDistributionButtonDisabled: boolean = true;
   teacherSummary: TeacherSummary[] = [];
+  selectedPostModule: 'NONE' | 'MASTER' | 'DOKTORSKE' = 'NONE'
 
   summaryRows = 1;
   totalLectures = 0;
@@ -44,7 +54,51 @@ export class HomeComponent implements OnInit {
   weeklyExercisesE = 0;
   weeklyLecturesO = 0;
   weeklyExercisesO = 0;
+  extraMasterClasses = 0;
+  masterClasses: any[] = [];
 
+
+  masterActivity = {
+    subject: '',
+    hoursHeld: null as number | null,
+    masterDate: Date,
+  };
+
+  saveMasterActivity() {
+
+    const newActivity = {
+      predmetNaMasterStudijama: this.masterActivity.subject,
+      odrzanoCasova: this.masterActivity.hoursHeld,
+      datumOdrzavanjaCasova: this.masterActivity.masterDate,
+      datumUnosa: new Date(),
+      nastavnikId: this.selectedDistributions[0]?.teacher?.id
+    }
+
+    this.masterModal.addMasterClass(newActivity);
+
+    this.masterActivity = {
+      subject: '',
+      hoursHeld: 0,
+      masterDate: Date
+    }
+
+
+  }
+
+  ngAfterViewInit() {
+    console.log('Modal komponenta inicijalizovana:', this.masterModal);
+
+  }
+
+  doctoralActivity = {
+    type: '',
+    studentName: '',
+    topic: ''
+  };
+
+  saveDoctoralActivity() {
+
+  }
 
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -77,46 +131,74 @@ export class HomeComponent implements OnInit {
   };
 
 
-  constructor(private teacherService: TeachersService, private subjectService: SubjectService, private distributionService: DistributionService) {
+  constructor(private teacherService: TeachersService, private subjectService: SubjectService, private distributionService: DistributionService, private schoolYearService: SchoolYearService) {
     this.dataSource = new MatTableDataSource<any>();
   }
 
   ngOnInit(): void {
-    this.teacherService.getTeachers().subscribe((teachers) => {
-      this.teachers = teachers;
-      this.teacherSummary = this.teachers.map((teachers)=>({
-        id: teachers.id,
-        email: teachers.email,
-        firstName: teachers.firstName,
-        lastName: teachers.lastName,
-        title: teachers.title,
-        summaryExerciseHours: 0,
-        summaryLectureHours: 0,
-      }));
-    });
 
-    this.subjectService.getSubjects().subscribe((subjects) => {
-      this.subjects = subjects;
-    });
+    setTimeout(() => {
+      // MASTER modal reset
+      const masterModalEl = document.getElementById('addMasterActivityModal');
+      if (masterModalEl) {
+        masterModalEl.addEventListener('hidden.bs.modal', () => {
+          this.masterActivity = { subject: '', hoursHeld: null, masterDate: Date };
+        });
+      }
 
-    this.distributionService.getDistributions().subscribe((distributions) => {
-      this.distributions = distributions;
+      // DOKTORSKI modal reset
+      const doctoralModalEl = document.getElementById('addDoctoralActivityModal');
+      if (doctoralModalEl) {
+        doctoralModalEl.addEventListener('hidden.bs.modal', () => {
+          this.doctoralActivity = { type: '', studentName: '', topic: '' };
+        });
+      }
+    }, 0);
 
-      this.distributions.forEach((distribution) => {
-        const index = this.teacherSummary.findIndex(
-          (ts) => ts.id === distribution.teacher.id
-        );
+    this.schoolYearService.selectedYear$
+      .subscribe((year) => {
+        if(!year) return;
 
-        if (index !== -1) {
-          if (distribution.classType === 'vezbe') {
-            this.teacherSummary[index].summaryExerciseHours += (distribution.subject.exerciseHours *13* distribution.sessionCount);
-          } else {
-            this.teacherSummary[index].summaryLectureHours += (distribution.subject.lectureHours *13* distribution.sessionCount);
-          }
-        }
-      });
-      this.showTeachers();
-    });
+        this.teacherService.getTeachersByYear(year.id).subscribe((teachers) => {
+          this.teachers = teachers;
+          this.teacherSummary = this.teachers.map((teachers)=>({
+            id: teachers.id,
+            email: teachers.email,
+            firstName: teachers.firstName,
+            lastName: teachers.lastName,
+            title: teachers.title,
+            summaryExerciseHours: 0,
+            summaryLectureHours: 0,
+          }));
+        });
+
+        this.subjectService.getSubjectsByYear(year.id).subscribe((subjects) => {
+          this.subjects = subjects;
+        });
+
+        this.distributionService.getDistributionsByYear(year.id).subscribe((distributions) => {
+          this.distributions = distributions;
+
+          this.distributions.forEach((distribution) => {
+            const index = this.teacherSummary.findIndex(
+              (ts) => ts.id === distribution.teacher.id
+            );
+
+            if (index !== -1) {
+              if (distribution.classType === 'vezbe') {
+                this.teacherSummary[index].summaryExerciseHours += (distribution.subject.exerciseHours *13* distribution.sessionCount);
+              } else {
+                this.teacherSummary[index].summaryLectureHours += (distribution.subject.lectureHours *13* distribution.sessionCount);
+              }
+            }
+          });
+          this.showTeachers();
+        });
+
+      })
+
+
+
   }
 
   showTeachers(): void {
@@ -417,6 +499,48 @@ export class HomeComponent implements OnInit {
   //
   //   return content;
   // }
+
+  dodajMaster() {
+    this.selectedPostModule = 'MASTER';
+    this.masterActivity = {
+      subject: '',
+      hoursHeld: null as number | null,
+      masterDate: Date
+    };
+  }
+
+  dodajDoktorske() {
+    this.selectedPostModule = 'DOKTORSKE';
+    this.doctoralActivity = {
+      type: '',
+      studentName: '',
+      topic: ''
+    };
+  }
+
+
+
+  openMasterModal() {
+
+    if (!this.masterModal) {
+      console.warn('Modal komponenta još nije inicijalizovana!');
+      return;
+    }
+
+    this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
+
+    this.masterModal.loadMasterClasses().subscribe(list => {
+      console.log("Lista koju dobijam u parentu:", list);
+      const modalEl = document.getElementById('masterModal');
+      if (modalEl) {
+        const modal = new Modal(modalEl);
+        modal.show();
+      }
+    });
+
+  }
+
+
 
 
 }

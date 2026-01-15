@@ -1,2 +1,49 @@
 <!-- The router-outlet directive is a placeholder that Angular dynamically fills based on the current router state. -->
 <router-outlet />
+
+<!-- Confirm non-active year modal -->
+<div class="modal fade" id="confirmEditModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">Upozorenje</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Ne nalazite se u aktivnoj školskoj godini.
+        </p>
+        <p>
+          Upišite <strong>IZMENI</strong> da biste nastavili.
+        </p>
+
+        <input
+          type="text"
+          class="form-control"
+          [ngClass]="{ 'is-invalid': confirmInvalid }"
+          [(ngModel)]="confirmText"
+          (input)="confirmInvalid = false"
+          (keyup.enter)="confirmEdit()"
+          placeholder="IZMENI"
+        />
+
+        <div class="invalid-feedback">
+          Morate uneti tačno <strong>IZMENI</strong>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">
+          Odustani
+        </button>
+        <button class="btn btn-danger" (click)="confirmEdit()">
+          Nastavi
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
