@@ -1,7 +1,9 @@
 export interface MasterClass {
   id: number;
-  predmetNaMasterStudijama: string;
+  predmetNaPostakademskimStudijama: string;
   odrzanoCasova: number;
   datumOdrzavanjaCasova: string;
   datumUnosa: string;
+  stepenStudija: string;
+  napomena: string;
 }

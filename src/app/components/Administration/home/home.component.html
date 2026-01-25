@@ -55,7 +55,7 @@
       </div>
       <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">
         <div class="summary-title">
-          Akademke studije
+          Osnovne studije
         </div>
       </div>
       <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">
@@ -97,14 +97,14 @@
               mat-menu-item
               data-bs-toggle="modal"
               data-bs-target="#addMasterActivityModal">
-              Master aktivnost
+              Dodatni časovi
             </button>
 
             <button
               mat-menu-item
               data-bs-toggle="modal"
               data-bs-target="#addDoctoralActivityModal">
-              Doktorska aktivnost
+              Komisija/Mentorstvo
             </button>
 
           </mat-menu>
@@ -116,9 +116,13 @@
           <span class="label">Dodatni časovi na master studijama</span>
           <span class="value">{{ extraMasterClasses }}</span>
         </div>
-        <div class="summary-row">
-          <span class="label">Dodatnih časovi na doktorskim studijama</span>
-<!--          <span class="value">{{ weeklyExercisesE }}</span>-->
+        <div class="summary-row" (click)="openDoctoralModal()" style="cursor: pointer;">
+          <span class="label">Dodatni časovi na doktorskim studijama</span>
+          <span class="value">{{ extraDoctoralClasses }}</span>
+        </div>
+        <div class="summary-row" (click)="openMentorCommissionModal()" style="cursor: pointer;">
+          <span class="label">Mentorstvo/Komisija</span>
+          <span class="value">{{ mentorCommissionInfo }}</span>
         </div>
       </div>
       <!-- Paginator -->
@@ -170,7 +174,7 @@
       <!-- HEADER -->
       <div class="modal-header">
         <h5 class="modal-title" id="addMasterActivityModalLabel">
-          Dodaj master aktivnost
+          Dodaj postakademsu aktivnost
         </h5>
         <button
           type="button"
@@ -184,19 +188,38 @@
       <div class="modal-body">
         <form>
 
+          <div class="mb-3">
+            <label for="studyLevel" class="form-label">
+              Nivo studija
+            </label>
+
+            <select
+              id="studyLevel"
+              class="form-control"
+              [(ngModel)]="postAcademicActivity.selectedLevel"
+              name="studyLevel">
+
+              <option value="" disabled>Izaberite nivo studija</option>
+              <option value="master">Master studije</option>
+              <option value="doktorat">Doktorske studije</option>
+            </select>
+          </div>
+
+
           <!-- PREDMET -->
           <div class="mb-3">
             <label for="masterSubject" class="form-label">
-              Predmet na master studijama
+              Naziv predmeta
             </label>
             <input
               type="text"
               id="masterSubject"
               class="form-control"
-              [(ngModel)]="masterActivity.subject"
+              [(ngModel)]="postAcademicActivity.subject"
               name="studentName">
 
           </div>
+
 
           <!-- BROJ ČASOVA -->
           <div class="mb-3">
@@ -207,7 +230,7 @@
               type="number"
               id="masterHours"
               class="form-control"
-              [(ngModel)]="masterActivity.hoursHeld"
+              [(ngModel)]="postAcademicActivity.hoursHeld"
               name="masterHours"
               min="0">
           </div>
@@ -220,9 +243,25 @@
               type="date"
               id="masterDate"
               class="form-control"
-              [(ngModel)]="masterActivity.masterDate"
+              [(ngModel)]="postAcademicActivity.masterDate"
               name="masterDate"
               min="0">
+          </div>
+
+          <div class="mb-3">
+            <label for="noteStudies" class="form-label">
+              Napomena
+            </label>
+            <textarea
+              rows="3"
+              cols="50"
+              id="noteStudies"
+              class="form-control"
+              [(ngModel)] = "postAcademicActivity.note"
+              name = "noteStudies"
+              placeholder="Dodati napomenu"
+            >
+            </textarea>
           </div>
 
         </form>
@@ -250,7 +289,7 @@
 </div>
 
 
-<!--Doktorski Modal-->
+<!--Komisija/Mentor Modal-->
 <div
   class="modal fade"
   id="addDoctoralActivityModal"
@@ -264,7 +303,7 @@
       <!-- HEADER -->
       <div class="modal-header">
         <h5 class="modal-title" id="addDoctoralActivityModalLabel">
-          Dodaj završni rad
+          Forma za komisiju/mentorstvo
         </h5>
         <button
           type="button"
@@ -292,8 +331,27 @@
               <option value="" disabled selected>
                 Izaberi tip
               </option>
-              <option value="MENTORSTVO">Mentorstvo</option>
-              <option value="KOMISIJA">Komisija</option>
+              <option value="Mentorstvo">Mentorstvo</option>
+              <option value="Komisija">Komisija</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="degree" class="form-label">
+              Stepen studija
+            </label>
+            <select
+              id="degree"
+              class="form-select"
+              [(ngModel)]="doctoralActivity.degree"
+              name="degreeStudies">
+
+              <option value="" disabled selected>
+                Izabrati stepen
+              </option>
+              <option value="Diplomski rad">Osnovne studije - Diplomski rad</option>
+              <option value="Master rad">Master studije - Master rad</option>
+              <option value="Doktorski rad">Doktorske studije - Doktorski rad</option>
             </select>
           </div>
 
@@ -323,6 +381,22 @@
               name="thesisTopic">
           </div>
 
+          <div class="mb-3">
+            <label for="noteForCommissionMentor" class="form-label">
+              Napomena
+            </label>
+            <textarea
+              rows="3"
+              cols="50"
+              id="noteForCommissionMentor"
+              class="form-control"
+              [(ngModel)] = "doctoralActivity.note"
+              name = "noteStudies"
+              placeholder="Dodati napomenu"
+            >
+            </textarea>
+          </div>
+
         </form>
       </div>
 
@@ -338,7 +412,7 @@
         <button
           type="button"
           class="btn btn-primary"
-          (click)="saveDoctoralActivity()">
+          (click)="saveCommissionMentorActivity()">
           Sačuvaj
         </button>
       </div>

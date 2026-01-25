@@ -58,37 +58,22 @@ export class HomeComponent implements OnInit {
   weeklyLecturesO = 0;
   weeklyExercisesO = 0;
   extraMasterClasses: number = 0;
+  extraDoctoralClasses: number = 0;
+  mentorCommissionInfo: number = 0;
   masterClasses: any[] = [];
+  selectedLevel: string = "";
 
 
-  masterActivity = {
+  postAcademicActivity = {
     subject: '',
     hoursHeld: null as number | null,
-    masterDate: Date,
+    masterDate: new Date(),
+    selectedLevel: '',
+    note: ''
   };
 
-  saveMasterActivity() {
-
-    const newActivity = {
-      predmetNaMasterStudijama: this.masterActivity.subject,
-      odrzanoCasova: this.masterActivity.hoursHeld,
-      datumOdrzavanjaCasova: this.masterActivity.masterDate,
-      datumUnosa: new Date(),
-      nastavnikId: this.selectedDistributions[0]?.teacher?.id
-    }
-
-    this.masterModal.addMasterClass(newActivity);
-
-    this.masterActivity = {
-      subject: '',
-      hoursHeld: 0,
-      masterDate: Date
-    }
-
-    this.loadTotalClassesAsync();
 
 
-  }
 
   loadTotalClassesAsync() {
     const intervalId = setInterval(() => {
@@ -98,11 +83,44 @@ export class HomeComponent implements OnInit {
 
         clearInterval(intervalId); // zaustavi interval kada imamo podatak
       }
-    }, 10); // proverava svakih 500 milisekundi (pola sekunde)
+    }, 100); // proverava svakih 500 milisekundi (pola sekunde)
 
     this.masterService.onCountChanged().subscribe(value => {
       console.log("Ovo je stiglo iz deteta:", value);
       this.extraMasterClasses = value;
+    })
+  }
+
+  loadTotalDoctoralClassesAsync() {
+    const intervalId = setInterval(() => {
+      if (this.selectedDistributions?.length && this.selectedDistributions[0]?.teacher?.id) {
+        console.log("Ucitao sam ukupan broj casova");
+        this.masterService.triggerDoctoralCountEvent(this.selectedDistributions[0].teacher.id);
+
+        clearInterval(intervalId); // zaustavi interval kada imamo podatak
+      }
+    }, 100); // proverava svakih 500 milisekundi (pola sekunde)
+
+    this.masterService.onDoctoralCountChanged().subscribe(value => {
+      console.log("Ovo je stiglo iz deteta:", value);
+      this.extraDoctoralClasses = value;
+    })
+  }
+
+
+  loadTotalMentorCommissionInfo() {
+    const intervalId = setInterval(() => {
+      if (this.selectedDistributions?.length && this.selectedDistributions[0]?.teacher?.id) {
+        console.log("Ucitao sam ukupan broj casova");
+        this.masterService.triggerMentorCommissionCountEvent(this.selectedDistributions[0].teacher.id);
+
+        clearInterval(intervalId); // zaustavi interval kada imamo podatak
+      }
+    }, 100); // proverava svakih 500 milisekundi (pola sekunde)
+
+    this.masterService.onMentorCommissionChange().subscribe(value => {
+      console.log("Ovo je stiglo iz deteta:", value);
+      this.mentorCommissionInfo = value;
     })
   }
 
@@ -114,12 +132,11 @@ export class HomeComponent implements OnInit {
   doctoralActivity = {
     type: '',
     studentName: '',
-    topic: ''
+    topic: '',
+    degree: '',
+    note: ''
   };
 
-  saveDoctoralActivity() {
-
-  }
 
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -159,13 +176,15 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
 
     this.loadTotalClassesAsync();
+    this.loadTotalDoctoralClassesAsync();
+    this.loadTotalMentorCommissionInfo()
 
     setTimeout(() => {
       // MASTER modal reset
       const masterModalEl = document.getElementById('addMasterActivityModal');
       if (masterModalEl) {
         masterModalEl.addEventListener('hidden.bs.modal', () => {
-          this.masterActivity = { subject: '', hoursHeld: null, masterDate: Date };
+          this.postAcademicActivity = { subject: '', hoursHeld: null, masterDate: new Date(), selectedLevel: '', note: ''};
         });
       }
 
@@ -173,7 +192,7 @@ export class HomeComponent implements OnInit {
       const doctoralModalEl = document.getElementById('addDoctoralActivityModal');
       if (doctoralModalEl) {
         doctoralModalEl.addEventListener('hidden.bs.modal', () => {
-          this.doctoralActivity = { type: '', studentName: '', topic: '' };
+          this.doctoralActivity = { type: '', studentName: '', topic: '', degree: '', note: '' };
         });
       }
     }, 0);
@@ -527,10 +546,12 @@ export class HomeComponent implements OnInit {
 
   dodajMaster() {
     this.selectedPostModule = 'MASTER';
-    this.masterActivity = {
+    this.postAcademicActivity = {
       subject: '',
       hoursHeld: null as number | null,
-      masterDate: Date
+      masterDate: new Date(),
+      selectedLevel: '',
+      note: ''
     };
   }
 
@@ -539,8 +560,83 @@ export class HomeComponent implements OnInit {
     this.doctoralActivity = {
       type: '',
       studentName: '',
-      topic: ''
+      topic: '',
+      degree: '',
+      note: ''
     };
+  }
+
+  saveMasterActivity() {
+
+    const newActivity = {
+      predmetNaPostakademskimStudijama: this.postAcademicActivity.subject,
+      odrzanoCasova: this.postAcademicActivity.hoursHeld,
+      datumOdrzavanjaCasova: this.postAcademicActivity.masterDate,
+      datumUnosa: new Date(),
+      nastavnikId: this.selectedDistributions[0]?.teacher?.id,
+      stepenStudija: this.postAcademicActivity.selectedLevel
+    }
+
+    this.masterModal.addMasterClass(newActivity);
+
+    this.postAcademicActivity = {
+      subject: '',
+      hoursHeld: 0,
+      masterDate: new Date(),
+      selectedLevel: '',
+      note: ''
+    }
+
+    this.loadTotalClassesAsync();
+    this.loadTotalDoctoralClassesAsync();
+
+
+  }
+
+  saveCommissionMentorActivity() {
+    const newMentorCommissionActivity = {
+      type: this.doctoralActivity.type,
+      studentName: this.doctoralActivity.studentName,
+      topic: this.doctoralActivity.topic,
+      degree: this.doctoralActivity.degree,
+      note: this.doctoralActivity.note,
+      nastavnikId: this.selectedDistributions[0]?.teacher?.id
+    }
+
+    this.masterModal.addMentorCommissionActivity(newMentorCommissionActivity);
+
+    this.doctoralActivity = {
+      type: '',
+      studentName: '',
+      topic: '',
+      degree: '',
+      note: ''
+    };
+
+    this.loadTotalClassesAsync();
+    this.loadTotalDoctoralClassesAsync();
+    this.loadTotalMentorCommissionInfo();
+
+
+  }
+
+  openMentorCommissionModal() {
+    if (!this.masterModal) {
+      console.warn('Modal komponenta još nije inicijalizovana!');
+      return;
+    }
+
+    this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
+
+    this.masterModal.loadMentorCommissionInfo().subscribe(list => {
+      console.log("Lista koju dobijam u parentu:", list);
+      const modalEl = document.getElementById('mentorCommissionModal');
+      if (modalEl) {
+        const modal = new Modal(modalEl);
+        modal.show();
+      }
+    })
+
   }
 
 
@@ -557,6 +653,26 @@ export class HomeComponent implements OnInit {
     this.masterModal.loadMasterClasses().subscribe(list => {
       console.log("Lista koju dobijam u parentu:", list);
       const modalEl = document.getElementById('masterModal');
+      if (modalEl) {
+        const modal = new Modal(modalEl);
+        modal.show();
+      }
+    });
+
+  }
+
+  openDoctoralModal() {
+
+    if (!this.masterModal) {
+      console.warn('Modal komponenta još nije inicijalizovana!');
+      return;
+    }
+
+    this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
+
+    this.masterModal.loadDoctoralClasses().subscribe(list => {
+      console.log("Lista koju dobijam u parentu:", list);
+      const modalEl = document.getElementById('doctoralModal');
       if (modalEl) {
         const modal = new Modal(modalEl);
         modal.show();

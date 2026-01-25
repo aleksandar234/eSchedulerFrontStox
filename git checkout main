@@ -1,0 +1,55 @@
+[33m9ef856c[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/frontEnd[m[33m, [m[1;31morigin/feature/frontEnd[m[33m)[m Added view for master classes on teacher
+[33mc96b328[m Added logic for copying previous years, and posteducation components
+[33m4fc210b[m Dodao sam console.log na svoju novu granu
+[33m7dd5413[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m fix count hours on home page for assistants
+[33m9dca417[m Fix spelling
+[33m640eb87[m fix distribution unique value for teacher
+[33mba7117e[m fix claculation classes
+[33me39a98e[m fix Distribution
+[33m76f468e[m fix import
+[33me2c4e65[m Add Import
+[33m558f91a[m change button color on home screen
+[33m5b75efa[m update documentation
+[33m92b2939[m fix export to pdf
+[33m7b61d69[m Commented standardTeacher, add Export buttton to navbar
+[33m229574a[m Add param route for standard user
+[33m266bb2b[m Add routes with no authorization
+[33m995f024[m Fix grammar
+[33m4386ee4[m add total hours
+[33m5bcb689[m add google outentification
+[33mda97704[m fix environment variables
+[33m0794151[m add production
+[33mf590f2e[m Change docker compose
+[33mef7537f[m change budget
+[33m73ac195[m export to PDF
+[33maffe742[m add export and enviroment variables
+[33m74678d0[m change services url
+[33m09ab450[m chnge backend adress
+[33m98cb684[m edit ngnix.config
+[33mac966f7[m fix docker configuration
+[33m80fbf3c[m add page for standardUser
+[33m6d7b546[m change ports
+[33m4a5a381[m change docker File
+[33m94ec16a[m change docker Compone file
+[33m8765724[m refactored DocerFile to use correct folder
+[33m833e2a4[m Merge branch 'main' of https://github.com/RAFSoftLab/eSchedulerFront
+[33maa60066[m fix creating email
+[33m8d40f3a[m Update main.yml
+[33m5e25234[m Update main.yml
+[33ma989b01[m Update main.yml
+[33mdad5124[m add dockerFile
+[33m68195a1[m Create main.yml
+[33m30b0ed0[m Cypress tests for my screens
+[33m5c0e3ec[m fix bugs from tests
+[33m1f28cf0[m refactor code to use teachers by email
+[33m8e858dd[m add to teacher Table SummaryRows
+[33m15def31[m user login
+[33ma88cee0[m Create distribution Screen and documentation
+[33m6fbd16a[m Created Teacher Page
+[33m50e6084[m Add Distribution
+[33m04face7[m add home page with table
+[33m7f86511[m create login page
+[33mc026075[m Merge branch 'main' of https://github.com/RAFSoftLab/eSchedulerFront
+[33m5ed7350[m[33m ([m[1;31morigin/TS2-ConnectToReceiveJson[m[33m)[m Create UserJson Receiver
+[33m520d7f2[m Create LICENSE
+[33mfab2795[m initial commit
