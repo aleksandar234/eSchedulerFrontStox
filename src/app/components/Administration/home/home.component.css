@@ -121,5 +121,21 @@ table{
   color: white !important;
 }
 
+.refresh-button {
+  border: none;
+  cursor: pointer;
+  background: none;
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.refresh-button:hover {
+  color: #007bff;
+}
+
+.refresh-button:active {
+  transform: scale(0.9);
+  color: #0056b3;
+}
+
 
 

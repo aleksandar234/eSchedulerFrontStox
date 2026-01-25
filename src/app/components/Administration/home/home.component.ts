@@ -544,6 +544,12 @@ export class HomeComponent implements OnInit {
   //   return content;
   // }
 
+  refresh(): void {
+    this.loadTotalMentorCommissionInfo();
+    this.loadTotalClassesAsync();
+    this.loadTotalDoctoralClassesAsync();
+  }
+
   dodajMaster() {
     this.selectedPostModule = 'MASTER';
     this.postAcademicActivity = {
