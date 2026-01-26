@@ -16,6 +16,7 @@ import * as bootstrap from 'bootstrap';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Modal} from 'bootstrap';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {firstValueFrom} from 'rxjs';
 
 
 @Component({
@@ -76,10 +77,12 @@ export class NavbarComponent implements OnInit{
   ngOnInit(): void {
 
     this.schoolYearService.selectedYear$.subscribe(year => {
+
       if (year) {
         this.activeYear = year.label; // npr. "2025/2026"
       }
     });
+
 
     this.teacherService.getTeachers().subscribe((teachers) => {
       this.teachers = teachers;
@@ -125,6 +128,7 @@ export class NavbarComponent implements OnInit{
         }
       });
     });
+
 
     this.schoolYearService.getActiveSchoolYear().subscribe({
       next: (data) => {
@@ -191,7 +195,30 @@ export class NavbarComponent implements OnInit{
     }
   }
 
-  exportDataToJson(type: 'teachers' | 'subjects' | 'distributions'): void {
+  async loadAllDistributionsSubjectsTeachers(selectedYearId: number){
+
+    this.distributions = await firstValueFrom(
+      this.distributionService.getDistributionsByYear(selectedYearId)
+    );
+
+    this.subjects = await firstValueFrom(
+      this.subjectService.getSubjectsByYear(selectedYearId)
+    );
+
+    this.teachers = await firstValueFrom(
+      this.teacherService.getTeachersByYear(selectedYearId)
+    );
+
+
+  }
+
+
+  async exportDataToJson(type: 'teachers' | 'subjects' | 'distributions'): Promise<void> {
+
+    let currentYear = this.schoolYearService.getCurrentYear();
+
+    await this.loadAllDistributionsSubjectsTeachers(currentYear!.id)
+
     let data;
     let fileName = '';
 
@@ -220,14 +247,27 @@ export class NavbarComponent implements OnInit{
     window.URL.revokeObjectURL(url);
   }
 
-  exportDataToPdf(type: 'teachers' | 'subjects' | 'distributions'): void {
+
+  async exportDataToPdf(type: 'teachers' | 'subjects' | 'distributions'): Promise<void> {
+
+    let currentYear = this.schoolYearService.getCurrentYear();
+
+    await this.loadAllDistributionsSubjectsTeachers(currentYear!.id);
+
     let data: any[];
     let fileName = '';
     let naslov = '';
 
+    console.log("Ovo mi je trenutno selektovana godina kada kliknem akciju export:", currentYear);
+
+    console.log("Nastavnici:", this.teachers);
+    console.log("Predmeti:", this.subjects);
+    console.log("Raspodle:", this.distributions);
+
+
     switch (type) {
       case 'teachers':
-        data = this.teacherSummary;
+        data = this.teachers;
         fileName = 'nastavnici.pdf';
         naslov = 'Izveštaj - Profesori';
         break;
@@ -292,6 +332,10 @@ export class NavbarComponent implements OnInit{
     };
 
     pdfMake.createPdf(docDefinition).download(fileName);
+  }
+
+  consoleLogAfterLoad() {
+    console.log("Ovo mi je sada konacna raspodela:", this.distributions);
   }
 
   generateContentForPdf(type: string, data: any[]): any[] {
