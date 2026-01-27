@@ -574,13 +574,17 @@ export class HomeComponent implements OnInit {
 
   saveMasterActivity() {
 
+    console.log("Trenutna/Aktivna skolska godina:", this.schoolYearService.getCurrentYear());
+    const currentYear = this.schoolYearService.getCurrentYear();
+
     const newActivity = {
       predmetNaPostakademskimStudijama: this.postAcademicActivity.subject,
       odrzanoCasova: this.postAcademicActivity.hoursHeld,
       datumOdrzavanjaCasova: this.postAcademicActivity.masterDate,
       datumUnosa: new Date(),
       nastavnikId: this.selectedDistributions[0]?.teacher?.id,
-      stepenStudija: this.postAcademicActivity.selectedLevel
+      stepenStudija: this.postAcademicActivity.selectedLevel,
+      skolskaGodinaId: currentYear?.id
     }
 
     this.masterModal.addMasterClass(newActivity);
@@ -600,13 +604,17 @@ export class HomeComponent implements OnInit {
   }
 
   saveCommissionMentorActivity() {
+
+    const currentYear = this.schoolYearService.getCurrentYear();
+
     const newMentorCommissionActivity = {
       type: this.doctoralActivity.type,
       studentName: this.doctoralActivity.studentName,
       topic: this.doctoralActivity.topic,
       degree: this.doctoralActivity.degree,
       note: this.doctoralActivity.note,
-      nastavnikId: this.selectedDistributions[0]?.teacher?.id
+      nastavnikId: this.selectedDistributions[0]?.teacher?.id,
+      skolskaGodinaId: currentYear?.id
     }
 
     this.masterModal.addMentorCommissionActivity(newMentorCommissionActivity);

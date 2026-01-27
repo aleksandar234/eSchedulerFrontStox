@@ -17,6 +17,10 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {Modal} from 'bootstrap';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {firstValueFrom} from 'rxjs';
+import {MasterClass} from '../../../models/masterClass.model';
+import {MasterDoctoralClasses} from '../../../models/masterDoctoralClasses.model';
+import {MasterClassService} from '../../../services/masterClass/master-class.service';
+import {MentorCommissionModel} from '../../../models/mentorCommission.model';
 
 
 @Component({
@@ -31,6 +35,8 @@ export class NavbarComponent implements OnInit{
   teachers: Teacher[] = [];
   subjects: Subject[] = [];
   distributions: Distribution[] = [];
+  masterDoctoralClasses: MasterDoctoralClasses[] = [];
+  mentorCommission: MentorCommissionModel[] = [];
   teacherSummary: TeacherSummary[] = [];
   activeYear: string = "";
   schoolYears: SchoolYear[] = [];
@@ -44,6 +50,7 @@ export class NavbarComponent implements OnInit{
     private subjectService: SubjectService,
     private distributionService: DistributionService,
     private schoolYearService: SchoolYearService,
+    private masterClassService: MasterClassService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -187,7 +194,7 @@ export class NavbarComponent implements OnInit{
   }
 
 
-  exportData(type: 'teachers' | 'subjects' | 'distributions', format: 'json' | 'pdf') {
+  exportData(type: 'teachers' | 'subjects' | 'distributions' | 'masterDoctoralClasses' | 'mentorCommission', format: 'json' | 'pdf') {
     if (format === 'json') {
       this.exportDataToJson(type)
     } else if (format === 'pdf') {
@@ -209,11 +216,19 @@ export class NavbarComponent implements OnInit{
       this.teacherService.getTeachersByYear(selectedYearId)
     );
 
+    this.masterDoctoralClasses = await firstValueFrom(
+      this.masterClassService.getMasterDoctoralClassesByYear(selectedYearId)
+    )
+
+    this.mentorCommission = await firstValueFrom(
+      this.masterClassService.getMentorCommissionForSY(selectedYearId)
+    )
+
 
   }
 
 
-  async exportDataToJson(type: 'teachers' | 'subjects' | 'distributions'): Promise<void> {
+  async exportDataToJson(type: 'teachers' | 'subjects' | 'distributions' | 'masterDoctoralClasses' | 'mentorCommission'): Promise<void> {
 
     let currentYear = this.schoolYearService.getCurrentYear();
 
@@ -248,7 +263,7 @@ export class NavbarComponent implements OnInit{
   }
 
 
-  async exportDataToPdf(type: 'teachers' | 'subjects' | 'distributions'): Promise<void> {
+  async exportDataToPdf(type: 'teachers' | 'subjects' | 'distributions' | 'masterDoctoralClasses' | 'mentorCommission'): Promise<void> {
 
     let currentYear = this.schoolYearService.getCurrentYear();
 
@@ -263,6 +278,8 @@ export class NavbarComponent implements OnInit{
     console.log("Nastavnici:", this.teachers);
     console.log("Predmeti:", this.subjects);
     console.log("Raspodle:", this.distributions);
+    console.log("MasterDoktoski casovi:", this.masterDoctoralClasses)
+    console.log("Komisija/Mentorstvo:", this.mentorCommission);
 
 
     switch (type) {
@@ -280,6 +297,15 @@ export class NavbarComponent implements OnInit{
         data = this.distributions;
         fileName = 'raspodela.pdf';
         naslov = 'Izveštaj - Raspodela';
+        break;
+      case 'masterDoctoralClasses':
+        data = this.masterDoctoralClasses;
+        fileName = 'postakademske.pdf';
+        naslov = "Izvestaj - Postakademske";
+        break;
+      case 'mentorCommission':
+        data = this.mentorCommission;
+        fileName = 'mentorKomisija.pdf';
         break;
       default:
         console.warn(`Nepoznat tip podataka: ${type}`);
@@ -426,7 +452,80 @@ export class NavbarComponent implements OnInit{
       });
     } else if (type === 'distributions') {
       // console.log('Implementacija za distribucije će biti dodata kasnije.');
+    } else if (type === 'masterDoctoralClasses') {
+      // 1️⃣ Grupisanje po nastavniku
+      const nastavnikIds = Array.from(new Set(data.map(d => d.nastavnkId)));
+
+      nastavnikIds.forEach(nastavnkId => {
+        const classesByTeacher = data.filter(d => d.nastavnkId === nastavnkId);
+
+        const teacher = this.teachers.find(t => t.id === nastavnkId);
+
+        // Subheader sa nastavnikom (ako imaš ime, stavi ime, ovde ID)
+        content.push({
+          text: `${teacher?.firstName || 'N/A'} ${teacher?.lastName || ''} - ${teacher?.title || ''}`,
+          style: 'subheader',
+          margin: [0, 2, 0, 2]
+        });
+
+        // Tabela sa svim predmetima (master + doktorat)
+        const tableData = classesByTeacher.map(d => [
+          d.predmetNaPostakademskimStudijama || 'N/A',
+          d.stepenStudija || 'N/A',
+          d.odrzanoCasova ?? 'N/A',
+          d.datumOdrzavanjaCasova || 'N/A',
+          d.datumUnosa ? new Date(d.datumUnosa).toLocaleDateString() : 'N/A',
+          d.napomena || ''
+        ]);
+
+        content.push({
+          table: {
+            headerRows: 1,
+            widths: ['30%', '15%', '10%', '15%', '20%', '10%'],
+            body: [
+              ['Predmet', 'Stepen Studija', 'Održano časova', 'Datum održavanja', 'Datum unosa', 'Napomena'],
+              ...tableData
+            ]
+          },
+          margin: [0, 0, 0, 5]
+        });
+      });
+    } else if (type === 'mentorCommission') {
+
+      content.push({
+        text: 'Izveštaj - Komisija i Mentorstvo',
+        style: 'header',
+        margin: [0, 0, 0, 5]
+      });
+
+
+      const tableData: any[] = (data || []).map(d => [
+        d.tip_angazmana || 'N/A',
+        d.stepenStudija || 'N/A',
+        d.imeStudenta || 'N/A',
+        d.temaRada || 'N/A',
+        d.napomena || '',
+        d.datumUnosa ? new Date(d.datumUnosa).toLocaleString() : 'N/A'
+      ]);
+
+
+
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: ['15%', '15%', '20%', '20%', '20%', '10%'],
+          body: [
+            ['Tip angažmana', 'Stepen studija', 'Ime studenta', 'Tema rada', 'Napomena', 'Datum unosa'],
+            ...tableData
+          ]
+        },
+        margin: [0, 0, 0, 5]
+      });
     }
+
+
+
+
 
     return content;
   }

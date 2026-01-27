@@ -4,6 +4,7 @@ import {Observable, Subject} from 'rxjs';
 import {MasterClass} from '../../models/masterClass.model';
 import * as cluster from 'node:cluster';
 import {MentorCommissionModel} from '../../models/mentorCommission.model';
+import {MasterDoctoralClasses} from '../../models/masterDoctoralClasses.model';
 
 @Injectable({
   providedIn: 'root'
@@ -64,6 +65,14 @@ export class MasterClassService {
 
   getMentorCommissionInfo(nastavnikId: number): Observable<MentorCommissionModel[]> {
     return this.http.get<MentorCommissionModel[]>(`${this.apiUrlCommissionMentor}/${nastavnikId}`)
+  }
+
+  getMentorCommissionForSY(skolskaGodinaId: number): Observable<MentorCommissionModel[]> {
+    return this.http.get<MentorCommissionModel[]>(`${this.apiUrlCommissionMentor}/${skolskaGodinaId}/SY`)
+  }
+
+  getMasterDoctoralClassesByYear(skolskaGodinaId: number): Observable<MasterDoctoralClasses[]> {
+    return this.http.get<MasterDoctoralClasses[]>(`${this.apiUrl}/${skolskaGodinaId}/master-doktorske`)
   }
 
   addMasterClass(masterClass: {
