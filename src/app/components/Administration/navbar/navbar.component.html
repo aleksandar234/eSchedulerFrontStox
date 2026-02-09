@@ -76,14 +76,28 @@
 
             <!-- Lista postojećih godina -->
             <li *ngFor="let year of schoolYears" class="year-item">
-              <button
-                class="dropdown-item"
-                (click)="selectSchoolYear(year)"
-                [ngClass]="{'active-year': year.active, 'inactive-year': !year.active}"
-              >
-                {{ year.label }}
-              </button>
+              <div class="d-flex align-items-center position-relative">
+
+                <button
+                  class="dropdown-item flex-grow-1 text-start"
+                  (click)="selectSchoolYear(year)"
+                  [ngClass]="{'active-year': year.active, 'inactive-year': !year.active}"
+                >
+                  {{ year.label }}
+                </button>
+
+                <button
+                  *ngIf="!year.active"
+                  class="btn btn-link btn-sm activate-btn"
+                  title="Postavi kao aktivnu godinu"
+                  (click)="openActivateModal(year); $event.stopPropagation()"
+                >
+                  +
+                </button>
+
+              </div>
             </li>
+
 
 
             <li><hr class="dropdown-divider"></li>
@@ -186,3 +200,77 @@
     </div>
   </div>
 </nav>
+
+<!-- Activate School Year Modal -->
+<div
+  class="modal fade"
+  id="activateYearModal"
+  tabindex="-1"
+  aria-labelledby="activateYearModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="activateYearModalLabel">
+          Aktivacija godine
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body text-center">
+        <p>
+          Da li ste sigurni da želite da postavite školsku godinu
+          <strong>{{ selectedYear?.label }}</strong>
+          kao aktivnu?
+        </p>
+      </div>
+
+      <div class="modal-footer justify-content-center">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm"
+          data-bs-dismiss="modal"
+        >
+          Otkaži
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-success btn-sm"
+          (click)="confirmActivateYear()"
+        >
+          Potvrdi
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal: Export & Remove Year -->
+<div class="modal fade" id="exportRemoveYearModal" tabindex="-1" aria-labelledby="exportRemoveModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exportRemoveModalLabel">Dosegnut maksimalan broj godina</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Izaberite školsku godinu koju želite da uklonite. Pre uklanjanja, preporučujemo da eksportujete raspodelu.</p>
+        <ul class="list-group">
+          <li *ngFor="let year of schoolYears" class="list-group-item d-flex justify-content-between align-items-center">
+            {{ year.label }}
+            <button class="btn btn-sm btn-success" (click)="exportAndRemoveYear(year)">Export & Remove</button>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+      </div>
+    </div>
+  </div>
+</div>
+

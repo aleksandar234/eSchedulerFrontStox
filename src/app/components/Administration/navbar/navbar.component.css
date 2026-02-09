@@ -25,3 +25,34 @@
   background-color: #6c757d !important; /* siva boja na hover */
 }
 
+.year-item {
+  width: 100%;
+}
+
+.activate-btn {
+  padding: 0 6px;
+  font-size: 14px;
+  color: #379a37;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.activate-btn:hover {
+  color: #046939;
+  opacity: 1;
+  text-decoration: none;
+}
+
+.year-label-btn {
+  width: 100%;
+  text-align: center;
+  padding-right: 32px; /* ostavlja prostor za + dugme */
+}
+
+.activate-btn {
+  position: absolute;
+  right: 8px;
+}
+
+
+

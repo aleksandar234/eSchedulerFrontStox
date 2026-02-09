@@ -44,6 +44,7 @@ export class NavbarComponent implements OnInit{
   schoolYearForm: FormGroup;
   selectedYear: SchoolYear | null = null;
 
+
   constructor(
     private authService: AuthService,
     private teacherService: TeachersService,
@@ -585,44 +586,97 @@ export class NavbarComponent implements OnInit{
       modal.show();
   }
 
+
+  pendingNewYearData: any | null = null;
+  formData: any | null = null;
+
   submitSchoolYear() {
-    const formData = this.schoolYearForm.value;
-    console.log("FormData:", formData);
-    if(this.schoolYearForm.invalid) {
+    this.formData = this.schoolYearForm.value;
+    console.log("FormData:", this.formData);
+
+    if (this.schoolYearForm.invalid) {
       this.schoolYearForm.markAllAsTouched();
       return;
     }
 
-    // Pravim svoj model
-    const newSchoolYear = {
-      label: formData.label,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      active: formData.active,
-      copyFromYear: formData.copyFromYear
+    // neutralni objekat sa podacima iz forme
+    const newYearData = {
+      label: this.formData.label,
+      startDate: this.formData.startDate,
+      endDate: this.formData.endDate,
+      active: this.formData.active,
+      copyFromYear: this.formData.copyFromYear
+    };
+
+    console.log("NewYearData:", newYearData);
+
+    // Ako je broj godina >= 4, otvorimo modal i prosledimo podatke direktno
+    if (this.schoolYears.length >= 4) {
+      console.log("usao sam ovde za otvaranje modala");
+      this.pendingNewYearData = newYearData; // čuvamo podatke u komponenti
+      this.openExportRemoveModal(newYearData.label); // prosleđujemo podatke u modal
+      return;
     }
 
-    console.log("NewSchoolYear:", newSchoolYear);
 
-    // Proveravamo sta dalje da radimo na osnovu godine koju su uneli ili nisu
-    if(newSchoolYear.copyFromYear === null) {
-      // Ovo znaci da je korisnik uneo da zeli da napravi praznu skolsku godinu
-      this.createEmptySchoolYear(newSchoolYear);
-    } else {
-      // Ovo znaci da korisnik zeli da prekopira neku od prethodnih godina
-      this.copyPreviousSchoolYear(newSchoolYear);
-    }
+    // Ako je manje od 4 godine, pravimo novu školsku godinu
+    // if (!formData.copyFromYear) {
+    //   this.createEmptySchoolYear({
+    //     id_skolska_godina: 0,
+    //     oznaka: formData.label,
+    //     datum_pocetka: formData.startDate,
+    //     datum_zavrsetka: formData.endDate,
+    //     aktivna: formData.active
+    //   });
+    // } else {
+    //   this.copyPreviousSchoolYear({
+    //     id_skolska_godina: null,
+    //     oznaka: formData.label,
+    //     datum_pocetka: formData.startDate,
+    //     datum_zavrsetka: formData.endDate,
+    //     aktivna: formData.active,
+    //     copyFromYear: formData.copyFromYear
+    //   });
+    // }
+
+    this.createNewYear(this.formData);
 
 
   }
 
+  createNewYear(newYearData: any) {
+
+    console.log("Creating new year with data:", newYearData);
+
+    if (!newYearData.copyFromYear) {
+      this.createEmptySchoolYear({
+        id_skolska_godina: 0,
+        oznaka: newYearData.label,
+        datum_pocetka: newYearData.startDate,
+        datum_zavrsetka: newYearData.endDate,
+        aktivna: newYearData.active
+      });
+    } else {
+      this.copyPreviousSchoolYear({
+        id_skolska_godina: null,
+        oznaka: newYearData.label,
+        datum_pocetka: newYearData.startDate,
+        datum_zavrsetka: newYearData.endDate,
+        aktivna: newYearData.active,
+        copyFromYear: newYearData.copyFromYear
+      });
+    }
+  }
+
+
+
   copyPreviousSchoolYear(formData: any) {
     const targetYear = {
       id: null,
-      oznaka: formData.label,
-      datum_pocetka: formData.startDate,
-      datum_zavrsetka: formData.endDate,
-      aktivna: formData.active
+      oznaka: formData.oznaka,
+      datum_pocetka: formData.datum_pocetka,
+      datum_zavrsetka: formData.datum_zavrsetka,
+      aktivna: formData.aktivna
     }
 
     const sourceYearId = formData.copyFromYear;
@@ -653,11 +707,13 @@ export class NavbarComponent implements OnInit{
 
     // Ovde pravim novu godinu bez coyParametra, jer znam da mi je null, zato sam i usao u pravljenje prazne skolske godine
     const newYear = {
-      oznaka: formData.label,
-      datum_pocetka: formData.startDate,
-      datum_zavrsetka: formData.endDate,
-      aktivna: formData.active
+      oznaka: formData.oznaka,
+      datum_pocetka: formData.datum_pocetka,
+      datum_zavrsetka: formData.datum_zavrsetka,
+      aktivna: formData.aktivna
     }
+
+    console.log("Ovo mi je kljucno:", newYear);
 
     this.schoolYearService.createEmptySchoolYear(newYear).subscribe({
       next: (res) => {
@@ -682,6 +738,116 @@ export class NavbarComponent implements OnInit{
     });
 
   }
+
+  activateModal: any;
+
+  openActivateModal(year: SchoolYear) {
+    this.selectedYear = year;
+
+    const modalEl = document.getElementById('activateYearModal')!;
+    this.activateModal = new bootstrap.Modal(modalEl);
+    this.activateModal.show();
+  }
+
+  confirmActivateYear() {
+    if (!this.selectedYear) return;
+
+    // 👉 OVDE ide backend poziv
+    console.log('Aktiviram godinu:', this.selectedYear);
+
+    this.schoolYearService.activateSelectedYearAndDeactivateOthers(this.selectedYear)
+      .subscribe({
+        next: (res) => {
+          console.log("Nova aktivna godina:", res);
+          this.activeYear = res.label;        // update label na frontu
+          this.schoolYears.forEach(y => y.active = (y.id === res.id)); // update status svih godina
+        },
+        error: (err) => console.error("Greška pri aktiviranju godine", err)
+      });
+
+    this.activateModal.hide();
+    this.selectedYear = null;
+  }
+
+  openExportRemoveModal(oznaka: String) {
+
+
+    const schoolYearModalEl = document.getElementById('schoolYearModal');
+    const schoolYearModalInstance = schoolYearModalEl ? bootstrap.Modal.getInstance(schoolYearModalEl) : null;
+    schoolYearModalInstance?.hide();
+
+
+    const modalEl = document.getElementById('exportRemoveYearModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+
+  }
+
+
+  async exportAndRemoveYear(yearToRemove: SchoolYear) {
+
+    // Ovde treba samo da exportujem i uklnoim godinu i onda ce ostatak da mi se napravi nova godina
+
+    console.log("Godina koju treba da uklonim:", yearToRemove);
+
+    // Ucitavam podatke za izabranu godinu
+    const distributions = await firstValueFrom(this.distributionService.getDistributionsByYear(yearToRemove.id));
+
+    console.log("Raspodele za izabranu godinu:", distributions);
+
+    this.exportAndRemoveData('distributions', 'json', distributions);
+
+    await firstValueFrom(this.schoolYearService.deleteSchoolYear(yearToRemove.id));
+
+    this.createNewYear(this.formData);
+
+    // onda pravimo novu godinu sa podacima iz forme
+
+  }
+
+  exportAndRemoveData(type: 'teachers' | 'subjects' | 'distributions' | 'masterDoctoralClasses' | 'mentorCommission', format: 'json' | 'pdf', distributions?: Distribution[]) {
+    if (format === 'json') {
+      this.exportAndRemoveDataToJson(type, distributions)
+    }
+
+  }
+
+  async exportAndRemoveDataToJson(type: 'teachers' | 'subjects' | 'distributions' | 'masterDoctoralClasses' | 'mentorCommission', distributions?: Distribution[]): Promise<void> {
+
+    // let currentYear = this.schoolYearService.getCurrentYear();
+    //
+    // await this.loadAllDistributionsSubjectsTeachers(currentYear!.id)
+    //
+    let data;
+    let fileName = '';
+
+    switch (type) {
+      // case 'teachers':
+      //   data = this.teachers;
+      //   fileName = 'nastavnici.json';
+      //   break;
+      // case 'subjects':
+      //   data = this.subjects;
+      //   fileName = 'predmeti.json';
+      //   break;
+      case 'distributions':
+        data = distributions;
+        fileName = 'raspodela.json';
+        break;
+    }
+
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
 
 
 }

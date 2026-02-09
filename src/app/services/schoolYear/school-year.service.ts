@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {SchoolYear} from '../../models/schoolYear.model';
 import {Distribution} from '../../models/distribution.model';
 import {environment} from '../../../environments/environment';
@@ -45,6 +45,7 @@ export class SchoolYearService {
   }
 
   createEmptySchoolYear(newYear: any): Observable<SchoolYear> {
+    console.log("Ovo mi je newYear koji saljem:", newYear);
     return this.httpClient.post<SchoolYear>(`${environment.apiUrl}/schoolYear/createEmptyYear`, newYear);
   }
 
@@ -52,7 +53,7 @@ export class SchoolYearService {
 
     const body = {
       sourceYearId: sourceYearId,
-      targetYearId: targetYear.id,
+      // targetYearId: targetYear.id,
       oznaka: targetYear.oznaka,
       datum_pocetka: targetYear.datum_pocetka,
       datum_zavrsetka: targetYear.datum_zavrsetka,
@@ -70,7 +71,16 @@ export class SchoolYearService {
     return !!selectedYear && selectedYear.active === true;
   }
 
+  activateSelectedYearAndDeactivateOthers(year: SchoolYear): Observable<SchoolYear> {
+    console.log("YEar:", year);
+    return this.httpClient.post<SchoolYear>(`${environment.apiUrl}/schoolYear/activateSelectedYear`, year);
+  }
 
+
+
+  deleteSchoolYear(id: number): Observable<any> {
+    return this.httpClient.delete(`${environment.apiUrl}/schoolYear/` + id);
+  }
 
 
 }

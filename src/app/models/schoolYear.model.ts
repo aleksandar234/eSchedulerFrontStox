@@ -16,3 +16,5 @@ export interface SchoolYear {
   datum_zavrsetka: Date;
   aktivna: boolean;
 }
+
+
