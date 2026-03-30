@@ -62,6 +62,9 @@ export class HomeComponent implements OnInit {
   mentorCommissionInfo: number = 0;
   masterClasses: any[] = [];
   selectedLevel: string = "";
+  subjects: Subject[] = [];
+  filteredSubjects: Subject[] = [];
+  showDropdown: boolean = false;
 
 
   postAcademicActivity = {
@@ -72,6 +75,40 @@ export class HomeComponent implements OnInit {
     note: ''
   };
 
+  otherAcademicActivity = {
+    subject: '',
+    hoursHeld: null as number | null,
+    masterDate: new Date(),
+    selectedLevel: '',
+    note: ''
+  };
+
+
+  onSubjectFocus(): void {
+    this.filteredSubjects = this.subjects;
+    this.showDropdown = true;
+  }
+
+
+  filterSubjects(): void {
+    const value = this.otherAcademicActivity.subject.toLowerCase();
+
+    if (!value) {
+      // ako je input prazan → prikaži sve
+      this.filteredSubjects = this.subjects;
+    } else {
+      this.filteredSubjects = this.subjects.filter(s =>
+        s.name.toLowerCase().includes(value)
+      );
+    }
+
+    this.showDropdown = this.filteredSubjects.length > 0;
+  }
+
+  selectSubject(subject: Subject): void {
+    this.otherAcademicActivity.subject = subject.name;
+    this.showDropdown = false;
+  }
 
 
 
@@ -141,7 +178,6 @@ export class HomeComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   teachers: Teacher[] = [];
-  subjects: Subject[] = [];
   distributions: Distribution[] = [];
   selectedDistributions: Distribution[] = [];
 
@@ -173,11 +209,21 @@ export class HomeComponent implements OnInit {
     this.dataSource = new MatTableDataSource<any>();
   }
 
+
+  loadSubjects(): void {
+    const currentYear = this.schoolYearService.getCurrentYear();
+    this.subjectService.getSubjectsByYear(currentYear?.id || 0).subscribe((subjects) => {
+      this.subjects = subjects;
+    });
+
+  }
+
   ngOnInit(): void {
 
     this.loadTotalClassesAsync();
     this.loadTotalDoctoralClassesAsync();
-    this.loadTotalMentorCommissionInfo()
+    this.loadTotalMentorCommissionInfo();
+    this.loadSubjects();
 
     setTimeout(() => {
       // MASTER modal reset
@@ -693,6 +739,20 @@ export class HomeComponent implements OnInit {
       }
     });
 
+  }
+
+  cancelOtherActivity() {
+    this.otherAcademicActivity = {
+      subject: '',
+      hoursHeld: null,
+      masterDate: new Date(),
+      selectedLevel: '',
+      note: ''
+    };
+  }
+
+  saveOtherAcademicActivity() {
+    // Implementacija logike za čuvanje druge akademske aktivnosti
   }
 
 

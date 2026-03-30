@@ -79,7 +79,7 @@
       <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">
         <div class="summary-title-row">
           <div class="summary-title">
-            Postakademske studije
+            Postdiplomske studije
           </div>
           <button (click)="refresh()" class="refresh-button">🔄</button>
 
@@ -106,6 +106,13 @@
               data-bs-toggle="modal"
               data-bs-target="#addDoctoralActivityModal">
               Komisija/Mentorstvo
+            </button>
+
+            <button
+              mat-menu-item
+              data-bs-toggle="modal"
+              data-bs-target="#addOtherActivityModal">
+              Ostale aktivnosti
             </button>
 
           </mat-menu>
@@ -281,6 +288,143 @@
           type="button"
           class="btn btn-primary"
           (click)="saveMasterActivity()">
+          Sačuvaj
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div
+  class="modal fade"
+  id="addOtherActivityModal"
+  tabindex="-1"
+  aria-labelledby="addOtherActivityModalLabel"
+  aria-hidden="true">
+
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- HEADER -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addOtherActivityModalLabel">
+          Unesi dodatnu aktivnost
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close">
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body">
+        <form>
+
+          <!-- PREDMET -->
+          <div class="mb-3 position-relative">
+            <label for="otherActivitySubject" class="form-label">
+              Naziv predmeta
+            </label>
+
+            <!-- INPUT (JEDAN) -->
+            <input
+              type="text"
+              id="otherActivitySubject"
+              class="form-control"
+              placeholder="Izaberi predmet"
+              [(ngModel)]="otherAcademicActivity.subject"
+              (input)="filterSubjects()"
+              (focus)="onSubjectFocus()"
+              name="subject"
+              autocomplete="off">
+
+            <!-- DROPDOWN (OVDE IDE ngFor) -->
+            <ul
+              *ngIf="showDropdown"
+              class="list-group position-absolute w-100"
+              style="
+              z-index: 1000;
+              max-height: 200px;
+              overflow-y: auto;
+            ">
+
+              <li
+                *ngFor="let s of filteredSubjects"
+                class="list-group-item list-group-item-action"
+                style="cursor: pointer;"
+                (mousedown)="selectSubject(s)">
+                {{ s.name }}
+              </li>
+
+            </ul>
+          </div>
+
+
+
+          <!-- BROJ ČASOVA -->
+          <div class="mb-3">
+            <label for="otherActivityHours" class="form-label">
+              Održano časova
+            </label>
+            <input
+              type="number"
+              id="otherActivityHours"
+              class="form-control"
+              [(ngModel)]="otherAcademicActivity.hoursHeld"
+              name="academicHours"
+              min="0">
+          </div>
+
+          <div class="mb-3">
+            <label for="otherActivityDate" class="form-label">
+              Datum održavanja časova
+            </label>
+            <input
+              type="date"
+              id="otherActivityDate"
+              class="form-control"
+              [(ngModel)]="otherAcademicActivity.masterDate"
+              name="masterDate"
+              min="0">
+          </div>
+
+          <div class="mb-3">
+            <label for="otherActivityNoteStudies" class="form-label">
+              Napomena
+            </label>
+            <textarea
+              rows="3"
+              cols="50"
+              id="otherActivityNoteStudies"
+              class="form-control"
+              [(ngModel)] = "otherAcademicActivity.note"
+              name = "noteStudies"
+              placeholder="Dodati napomenu"
+            >
+            </textarea>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancelOtherActivity()"
+          data-bs-dismiss="modal">
+          Zatvori
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveOtherAcademicActivity()">
           Sačuvaj
         </button>
       </div>
