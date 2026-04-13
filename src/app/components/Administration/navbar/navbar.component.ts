@@ -759,14 +759,14 @@ export class NavbarComponent implements OnInit{
       .subscribe({
         next: (res) => {
           console.log("Nova aktivna godina:", res);
-          this.activeYear = res.label;        // update label na frontu
+          this.activeYear = res.oznaka;        // update label na frontu
           this.schoolYears.forEach(y => y.active = (y.id === res.id)); // update status svih godina
         },
         error: (err) => console.error("Greška pri aktiviranju godine", err)
       });
 
     this.activateModal.hide();
-    this.selectedYear = null;
+    // this.selectedYear = null;
   }
 
   openExportRemoveModal(oznaka: String) {

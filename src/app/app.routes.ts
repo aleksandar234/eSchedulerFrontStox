@@ -9,13 +9,32 @@ import {StandardUsersComponent} from './components/standard-users/standard-users
 import {AuthGuard} from './guards/auth.guard';
 import {AdminGuard} from './guards/admin.guard';
 
+// export const routes: Routes = [
+//   {path: '', component: LayoutComponent, children: [
+//     {path: 'teachers', component: TeacherComponent, canActivate: [AuthGuard, AdminGuard]},
+//     {path: 'subjects', component: SubjectComponent, canActivate: [AuthGuard, AdminGuard]},
+//     {path: 'distribution', component: DistributionComponent, canActivate: [AuthGuard, AdminGuard]},
+//     { path: '', component: HomeComponent,canActivate: [AuthGuard, AdminGuard]},
+//   ]},
+//   { path: 'standardUser', component: StandardUsersComponent, canActivate: [AuthGuard] },
+//   { path: 'login', component: LoginComponent },
+// ];
+
+
 export const routes: Routes = [
-  {path: '', component: LayoutComponent, children: [
-    {path: 'teachers', component: TeacherComponent, canActivate: [AuthGuard, AdminGuard]},
-    {path: 'subjects', component: SubjectComponent, canActivate: [AuthGuard, AdminGuard]},
-    {path: 'distribution', component: DistributionComponent, canActivate: [AuthGuard, AdminGuard]},
-    { path: '', component: HomeComponent,canActivate: [AuthGuard, AdminGuard]},
-  ]},
-  { path: 'standardUser', component: StandardUsersComponent, canActivate: [AuthGuard] },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+      { path: 'teachers', component: TeacherComponent, canActivate: [AuthGuard, AdminGuard] },
+      { path: 'subjects', component: SubjectComponent, canActivate: [AuthGuard, AdminGuard] },
+      { path: 'distribution', component: DistributionComponent, canActivate: [AuthGuard, AdminGuard] },
+      { path: 'home', component: HomeComponent, canActivate: [AuthGuard, AdminGuard] },
+    ]
+  },
+
+  { path: 'standardUser', component: StandardUsersComponent, canActivate: [AuthGuard] },
 ];

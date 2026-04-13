@@ -5,7 +5,7 @@ import {provideAnimationsAsync} from '@angular/platform-browser/animations/async
 import {routes} from './app.routes';
 import {routesNoAuth} from './app.routes.no-auth';
 
-const useAuth = false; // Postavka koja određuje da li se koristi AuthGuard (true) ili ne (false)
+const useAuth = true; // Postavka koja određuje da li se koristi AuthGuard (true) ili ne (false)
 
 const appConfig: ApplicationConfig = {
   providers: [

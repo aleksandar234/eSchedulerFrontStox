@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import {NavigationCancel, NavigationEnd, NavigationError, NavigationStart, RouterOutlet} from '@angular/router';
 import {Modal} from 'bootstrap';
 import {FormsModule} from '@angular/forms';
 import {NgClass} from '@angular/common';
@@ -27,6 +27,9 @@ export class AppComponent {
       new Modal(modalEl).show();
     }
   }
+
+
+
 
   confirmEdit() {
     if (this.confirmText.toUpperCase() !== 'IZMENI') {
