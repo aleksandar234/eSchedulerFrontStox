@@ -91,7 +91,7 @@ export class HomeComponent implements OnInit {
 
 
   filterSubjects(): void {
-    const value = this.otherAcademicActivity.subject.toLowerCase();
+    const value = this.postAcademicActivity.subject.toLowerCase();
 
     if (!value) {
       // ako je input prazan → prikaži sve
@@ -106,7 +106,7 @@ export class HomeComponent implements OnInit {
   }
 
   selectSubject(subject: Subject): void {
-    this.otherAcademicActivity.subject = subject.name;
+    this.postAcademicActivity.subject = subject.name;
     this.showDropdown = false;
   }
 

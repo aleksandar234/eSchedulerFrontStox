@@ -99,6 +99,9 @@ export class StandardUsersComponent implements OnInit{
     this.route.queryParams.subscribe(params => {
       const emailFromUrl = params['email'];
       this.user = emailFromUrl || this.authService.getEmail();
+      console.log("User email je: ", this.user);
+      const meEmail = "astojanovic725m3@raf.rs"
+
 
       this.distributionService.getStandardUser(this.user).subscribe((standardUsers) => {
         this.standardUser = standardUsers.map(user => ({
@@ -110,8 +113,12 @@ export class StandardUsersComponent implements OnInit{
 
         if (this.standardUser.length > 0) {
           this.calculateSummaryFromData();
-          const { firstName, lastName } = this.standardUser[0];
-          this.username = `${firstName} ${lastName}`;
+          if(this.user === meEmail){
+            this.username = "Aleksandar Stojanovic";
+          } else {
+            const { firstName, lastName } = this.standardUser[0];
+            this.username = `${firstName} ${lastName}`;
+          }
         } else {
           this.username = 'Nepoznat korisnik';
         }

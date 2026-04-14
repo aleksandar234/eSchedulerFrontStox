@@ -224,7 +224,28 @@
               id="masterSubject"
               class="form-control"
               [(ngModel)]="postAcademicActivity.subject"
+              (input)="filterSubjects()"
+              (focus)="onSubjectFocus()"
               name="studentName">
+
+            <ul
+              *ngIf="showDropdown"
+              class="list-group position-absolute w-100"
+              style="
+              z-index: 1000;
+              max-height: 200px;
+              overflow-y: auto;
+            ">
+
+              <li
+                *ngFor="let s of filteredSubjects"
+                class="list-group-item list-group-item-action"
+                style="cursor: pointer;"
+                (mousedown)="selectSubject(s)">
+                {{ s.name }}
+              </li>
+
+            </ul>
 
           </div>
 
@@ -337,30 +358,10 @@
               class="form-control"
               placeholder="Izaberi predmet"
               [(ngModel)]="otherAcademicActivity.subject"
-              (input)="filterSubjects()"
-              (focus)="onSubjectFocus()"
               name="subject"
               autocomplete="off">
 
             <!-- DROPDOWN (OVDE IDE ngFor) -->
-            <ul
-              *ngIf="showDropdown"
-              class="list-group position-absolute w-100"
-              style="
-              z-index: 1000;
-              max-height: 200px;
-              overflow-y: auto;
-            ">
-
-              <li
-                *ngFor="let s of filteredSubjects"
-                class="list-group-item list-group-item-action"
-                style="cursor: pointer;"
-                (mousedown)="selectSubject(s)">
-                {{ s.name }}
-              </li>
-
-            </ul>
           </div>
 
 
