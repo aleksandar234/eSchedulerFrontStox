@@ -1,0 +1,141 @@
+.table-container {
+  margin: 20px;
+}
+
+mat-paginator {
+  margin-top: 20px;
+}
+
+table tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+table tr:nth-child(even) {
+  background-color: #ffffff;
+}
+
+
+.table-container {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
+
+
+table tr {
+  border-bottom: 1px solid #ccc;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+
+.mat-paginator {
+  border-top: 1px solid #ccc;
+}
+
+mat-form-field {
+  margin-bottom: 20px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 20px;
+}
+
+/*for summary rows*/
+.custom-summary-rows {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.label {
+  flex: 1;
+  text-align: left;
+  color: #333;
+}
+table{
+  cursor: pointer !important;
+}
+
+.value {
+  width: 50px;
+  text-align: left;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.summary-title-row {
+  position: relative;       /* omogućava apsolutno pozicioniranje dugmeta */
+  display: flex;
+  justify-content: center;  /* naslov centriran */
+  align-items: center;
+  margin: 20px 0 10px;
+}
+
+.summary-title {
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Dugme desno, ne pomera naslov */
+.add-btn {
+  position: absolute;
+  right: 420px;
+  background-color: #4CAF50 !important; /* zelena boja */
+  color: white !important;
+}
+
+.refresh-button {
+  border: none;
+  cursor: pointer;
+  background: none;
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.refresh-button:hover {
+  color: #007bff;
+}
+
+.refresh-button:active {
+  transform: scale(0.9);
+  color: #0056b3;
+}
+
+
+

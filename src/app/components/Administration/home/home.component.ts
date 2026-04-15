@@ -20,10 +20,9 @@ import {SchoolYearService} from '../../../services/schoolYear/school-year.servic
 import {MasterActivityComponent} from '../../../modules/master-activity/master-activity.component';
 import {DoctoralActivityComponent} from '../../../modules/doctoral-activity/doctoral-activity.component';
 import {FormsModule} from '@angular/forms';
-import {MasterClassModalComponent} from '../../master-class-modal/master-class-modal.component';
-import {Modal} from 'bootstrap';
 import {MasterClassService} from '../../../services/masterClass/master-class.service';
 import {Observable} from 'rxjs';
+import { PostgraduateStudiesComponent } from '../../shared/postgraduate-studies/postgraduate-studies.component';
 
 
 (pdfMake as any).vfs = pdfFonts;
@@ -31,7 +30,7 @@ import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, NgIf, MatButtonModule, MatFormFieldModule, MatInputModule, MatMenuModule, MasterActivityComponent, DoctoralActivityComponent, FormsModule, MasterClassModalComponent],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, NgIf, MatButtonModule, MatFormFieldModule, MatInputModule, MatMenuModule, MasterActivityComponent, DoctoralActivityComponent, FormsModule, PostgraduateStudiesComponent],
   templateUrl: './home.component.html',
   standalone: true,
   styleUrl: './home.component.css'
@@ -40,7 +39,7 @@ import {Observable} from 'rxjs';
 
 export class HomeComponent implements OnInit {
 
-  @ViewChild('masterModal') masterModal!: MasterClassModalComponent;
+  //@ViewChild('masterModal') masterModal!: MasterClassModalComponent;
 
 
   displayedColumns: string[] = [];
@@ -161,10 +160,10 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  ngAfterViewInit() {
-    console.log('Modal komponenta inicijalizovana:', this.masterModal);
-
-  }
+  // ngAfterViewInit() {
+  //   console.log('Modal komponenta inicijalizovana:', this.masterModal);
+  //
+  // }
 
   doctoralActivity = {
     type: '',
@@ -392,204 +391,6 @@ export class HomeComponent implements OnInit {
   }
 
 
-
-  // exportData(type: 'teachers' | 'subjects' | 'distributions', format: 'json' | 'pdf') {
-  //   if (format === 'json') {
-  //     this.exportDataToJson(type)
-  //   } else if (format === 'pdf') {
-  //     this.exportDataToPdf(type)
-  //   }
-  // }
-  //
-  // exportDataToJson(type: 'teachers' | 'subjects' | 'distributions'): void {
-  //   let data;
-  //   let fileName = '';
-  //
-  //   switch (type) {
-  //     case 'teachers':
-  //       data = this.teachers;
-  //       fileName = 'nastavnici.json';
-  //       break;
-  //     case 'subjects':
-  //       data = this.subjects;
-  //       fileName = 'predmeti.json';
-  //       break;
-  //     case 'distributions':
-  //       data = this.distributions;
-  //       fileName = 'raspodela.json';
-  //       break;
-  //   }
-  //
-  //   const jsonData = JSON.stringify(data, null, 2);
-  //   const blob = new Blob([jsonData], { type: 'application/json' });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.href = url;
-  //   a.download = fileName;
-  //   a.click();
-  //   window.URL.revokeObjectURL(url);
-  // }
-
-
-
-
-
-
-  // exportDataToPdf(type: 'teachers' | 'subjects' | 'distributions'): void {
-  //   let data: any[];
-  //   let fileName = '';
-  //
-  //   switch (type) {
-  //     case 'teachers':
-  //       data = this.teacherSummary;
-  //       fileName = 'nastavnici.pdf';
-  //       break;
-  //     case 'subjects':
-  //       data = this.subjects;
-  //       fileName = 'predmeti.pdf';
-  //       break;
-  //     case 'distributions':
-  //       data = this.distributions;
-  //       fileName = 'raspodela.pdf';
-  //       break;
-  //     default:
-  //       console.warn(`Nepoznat tip podataka: ${type}`);
-  //       return;
-  //   }
-  //
-  //   if (!data || data.length === 0) {
-  //     console.warn(`Nema podataka za ${type}`);
-  //     return;
-  //   }
-  //
-  //   const docDefinition = {
-  //     content: [
-  //       { text: `Izveštaj - ${type.charAt(0).toUpperCase() + type.slice(1)}`, style: 'header' },
-  //       ...this.generateContentForPdf(type, data)
-  //     ],
-  //     styles: {
-  //       header: {
-  //         fontSize: 18,
-  //         bold: true,
-  //         alignment: 'center' as const,
-  //         margin: [0, 0, 0, 10] as [number,number,number,number]
-  //       },
-  //       subheader: {
-  //         fontSize: 14,
-  //         bold: true,
-  //         margin: [0, 10, 0, 5] as [number,number,number,number]
-  //       },
-  //       tableHeader: {
-  //         bold: true,
-  //         fontSize: 12,
-  //         color: 'white',
-  //         fillColor: '#2980b9',
-  //         alignment: 'center' as const,
-  //         margin: [0,0,0,0] as [number,number,number,number]
-  //       }
-  //     },
-  //     defaultStyle: {
-  //       font: 'Roboto',
-  //       fontSize: 10
-  //     },
-  //     fonts:{
-  //       Roboto: {
-  //         normal: 'Roboto-Regular.ttf',
-  //         bold: 'Roboto-Medium.ttf',
-  //         italics: 'Roboto-Italic.ttf',
-  //         bolditalics: 'Roboto-MediumItalic.ttf'
-  //       }
-  //     }
-  //   };
-  //
-  //   pdfMake.createPdf(docDefinition).download(fileName);
-  // }
-  //
-  // generateContentForPdf(type: string, data: any[]): any[] {
-  //   const content: any[] = [];
-  //
-  //   if (type === 'teachers') {
-  //     data.forEach((teacherSummary: TeacherSummary) => {
-  //       const teacher = this.teachers.find(t => t.id === teacherSummary.id);
-  //
-  //       content.push(
-  //         { text: `${teacherSummary.lastName} ${teacherSummary.firstName} - ${teacher?.title || 'N/A'}`, style: 'subheader' },
-  //         { text: `Fond časova: ${teacherSummary.summaryLectureHours + teacherSummary.summaryExerciseHours}`, margin: [0, 0, 0, 10] }
-  //       );
-  //
-  //       const teacherDistributions = this.distributions.filter(dist => dist.teacher.id === teacherSummary.id);
-  //       const tableData = teacherDistributions.map(dist => [
-  //         dist.subject.name,
-  //         dist.subject.studyProgram,
-  //         dist.subject.semester,
-  //         dist.classType === 'vezbe' ? 'Vežbe' : 'Predavanja',
-  //         dist.classType === 'vezbe' ? dist.subject.exerciseHours : dist.subject.lectureHours,
-  //         dist.sessionCount,
-  //         (dist.classType === 'vezbe' ? dist.subject.exerciseHours : dist.subject.lectureHours) * 13 * dist.sessionCount
-  //       ]);
-  //
-  //       content.push({
-  //         table: {
-  //           headerRows: 1,
-  //           widths: ['*', '*', '*', '*', '*', '*', '*'],
-  //           body: [
-  //             [
-  //               { text: 'Naziv', style: 'tableHeader' },
-  //               { text: 'Stud. program', style: 'tableHeader' },
-  //               { text: 'Semestar', style: 'tableHeader' },
-  //               { text: 'Vrsta', style: 'tableHeader' },
-  //               { text: 'Fond', style: 'tableHeader' },
-  //               { text: 'Broj termina', style: 'tableHeader' },
-  //               { text: 'Ukupno', style: 'tableHeader' }
-  //             ],
-  //             ...tableData
-  //           ]
-  //         },
-  //         margin: [0, 0, 0, 20]
-  //       });
-  //     });
-  //   } else if (type === 'subjects') {
-  //     data.forEach((subject: Subject) => {
-  //       content.push(
-  //         { text: `${subject.name} - ${subject.studyProgram}, semestar: ${subject.semester}`, style: 'subheader' },
-  //         { text: `Termini predavanja: ${subject.lectureSessions}`, margin: [0, 0, 0, 5] },
-  //         { text: `Termini vežbi: ${subject.exerciseSessions}`, margin: [0, 0, 0, 10] }
-  //       );
-  //
-  //       const subjectDistributions = this.distributions.filter(dist => dist.subject.id === subject.id);
-  //       const tableData = subjectDistributions.map(dist => [
-  //         `${dist.teacher.lastName} ${dist.teacher.firstName}`,
-  //         dist.classType === 'vezbe' ? 'Vežbe' : 'Predavanja',
-  //         dist.sessionCount,
-  //         dist.classType === 'vezbe' ? dist.subject.exerciseHours : dist.subject.lectureHours,
-  //         (dist.classType === 'vezbe' ? dist.subject.exerciseHours : dist.subject.lectureHours) * 13 * dist.sessionCount
-  //       ]);
-  //
-  //       content.push({
-  //         table: {
-  //           headerRows: 1,
-  //           widths: ['*', '*', '*', '*', '*'],
-  //           body: [
-  //             [
-  //               { text: 'Prezime i ime', style: 'tableHeader' },
-  //               { text: 'Vrsta', style: 'tableHeader' },
-  //               { text: 'Broj termina', style: 'tableHeader' },
-  //               { text: 'Broj časova', style: 'tableHeader' },
-  //               { text: 'Ukupno', style: 'tableHeader' }
-  //             ],
-  //             ...tableData
-  //           ]
-  //         },
-  //         margin: [0, 0, 0, 20]
-  //       });
-  //     });
-  //   } else if (type === 'distributions') {
-  //     // console.log('Implementacija za distribucije će biti dodata kasnije.');
-  //   }
-  //
-  //   return content;
-  // }
-
   refresh(): void {
     this.loadTotalMentorCommissionInfo();
     this.loadTotalClassesAsync();
@@ -633,7 +434,7 @@ export class HomeComponent implements OnInit {
       skolskaGodinaId: currentYear?.id
     }
 
-    this.masterModal.addMasterClass(newActivity);
+    // this.masterModal.addMasterClass(newActivity);
 
     this.postAcademicActivity = {
       subject: '',
@@ -663,7 +464,7 @@ export class HomeComponent implements OnInit {
       skolskaGodinaId: currentYear?.id
     }
 
-    this.masterModal.addMentorCommissionActivity(newMentorCommissionActivity);
+    // this.masterModal.addMentorCommissionActivity(newMentorCommissionActivity);
 
     this.doctoralActivity = {
       type: '',
@@ -681,21 +482,21 @@ export class HomeComponent implements OnInit {
   }
 
   openMentorCommissionModal() {
-    if (!this.masterModal) {
-      console.warn('Modal komponenta još nije inicijalizovana!');
-      return;
-    }
-
-    this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
-
-    this.masterModal.loadMentorCommissionInfo().subscribe(list => {
-      console.log("Lista koju dobijam u parentu:", list);
-      const modalEl = document.getElementById('mentorCommissionModal');
-      if (modalEl) {
-        const modal = new Modal(modalEl);
-        modal.show();
-      }
-    })
+    // if (!this.masterModal) {
+    //   console.warn('Modal komponenta još nije inicijalizovana!');
+    //   return;
+    // }
+    //
+    // this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
+    //
+    // this.masterModal.loadMentorCommissionInfo().subscribe(list => {
+    //   console.log("Lista koju dobijam u parentu:", list);
+    //   const modalEl = document.getElementById('mentorCommissionModal');
+    //   if (modalEl) {
+    //     const modal = new Modal(modalEl);
+    //     modal.show();
+    //   }
+    // })
 
   }
 
@@ -703,41 +504,41 @@ export class HomeComponent implements OnInit {
 
   openMasterModal() {
 
-    if (!this.masterModal) {
-      console.warn('Modal komponenta još nije inicijalizovana!');
-      return;
-    }
-
-    this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
-
-    this.masterModal.loadMasterClasses().subscribe(list => {
-      console.log("Lista koju dobijam u parentu:", list);
-      const modalEl = document.getElementById('masterModal');
-      if (modalEl) {
-        const modal = new Modal(modalEl);
-        modal.show();
-      }
-    });
+    // if (!this.masterModal) {
+    //   console.warn('Modal komponenta još nije inicijalizovana!');
+    //   return;
+    // }
+    //
+    // this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
+    //
+    // this.masterModal.loadMasterClasses().subscribe(list => {
+    //   console.log("Lista koju dobijam u parentu:", list);
+    //   const modalEl = document.getElementById('masterModal');
+    //   if (modalEl) {
+    //     const modal = new Modal(modalEl);
+    //     modal.show();
+    //   }
+    // });
 
   }
 
   openDoctoralModal() {
 
-    if (!this.masterModal) {
-      console.warn('Modal komponenta još nije inicijalizovana!');
-      return;
-    }
-
-    this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
-
-    this.masterModal.loadDoctoralClasses().subscribe(list => {
-      console.log("Lista koju dobijam u parentu:", list);
-      const modalEl = document.getElementById('doctoralModal');
-      if (modalEl) {
-        const modal = new Modal(modalEl);
-        modal.show();
-      }
-    });
+    // if (!this.masterModal) {
+    //   console.warn('Modal komponenta još nije inicijalizovana!');
+    //   return;
+    // }
+    //
+    // this.masterModal.nastavnikId = this.selectedDistributions[0]!.teacher!.id;
+    //
+    // this.masterModal.loadDoctoralClasses().subscribe(list => {
+    //   console.log("Lista koju dobijam u parentu:", list);
+    //   const modalEl = document.getElementById('doctoralModal');
+    //   if (modalEl) {
+    //     const modal = new Modal(modalEl);
+    //     modal.show();
+    //   }
+    // });
 
   }
 

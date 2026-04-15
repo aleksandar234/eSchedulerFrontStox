@@ -10,11 +10,12 @@ import {standardUser} from '../../models/standardUser.model';
 import {MatSortModule} from '@angular/material/sort';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../services/auth.service';
+import { PostgraduateStudiesComponent } from '../shared/postgraduate-studies/postgraduate-studies.component';
 
 
 @Component({
   selector: 'app-standard-users',
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatButtonModule, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatSortModule, MatButtonModule, MatFormFieldModule, MatInputModule, PostgraduateStudiesComponent],
   templateUrl: './standard-users.component.html',
   standalone: true,
   styleUrl: './standard-users.component.css'
@@ -25,6 +26,7 @@ export class StandardUsersComponent implements OnInit{
   standardUser : standardUser[] = [];
   user: any;
   username : any
+  isDistributionButtonDisabled: boolean = true;
 
   totalLectures = 0;
   totalExercises = 0;
@@ -32,6 +34,8 @@ export class StandardUsersComponent implements OnInit{
   weeklyExercisesE = 0;
   weeklyLecturesO = 0;
   weeklyExercisesO = 0;
+
+  teacherId: number | null = null;
 
 
 
@@ -112,6 +116,9 @@ export class StandardUsersComponent implements OnInit{
         this.displayedColumns = ['name', 'studyProgram', 'semester', 'countHours', 'sessionCount', 'leftSessionCount', 'classType'];
 
         if (this.standardUser.length > 0) {
+          this.teacherId = this.standardUser[0].teacherId;
+          console.log('STANDARD USER 0:', this.standardUser[0]);
+          console.log('teacherId:', this.standardUser[0]?.teacherId);
           this.calculateSummaryFromData();
           if(this.user === meEmail){
             this.username = "Aleksandar Stojanovic";

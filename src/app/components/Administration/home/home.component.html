@@ -76,492 +76,506 @@
           <span class="value">{{ totalExercises }}</span>
         </div>
       </div>
-      <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">
-        <div class="summary-title-row">
-          <div class="summary-title">
-            Postdiplomske studije
-          </div>
-          <button (click)="refresh()" class="refresh-button">🔄</button>
 
-          <!-- Dugme koje otvara MENU -->
-          <button
-            mat-raised-button
-            class="add-btn"
-            [matMenuTriggerFor]="activityMenu">
-            Dodaj aktivnost
-          </button>
+      <app-postgraduate-studies
+        *ngIf="selectedDistributions?.length"
+        [teacherId]="selectedDistributions[0].teacher.id"
+        [canEdit]="true">
+      </app-postgraduate-studies>
 
-          <!-- MENU -->
-          <mat-menu #activityMenu="matMenu">
 
-            <button
-              mat-menu-item
-              data-bs-toggle="modal"
-              data-bs-target="#addMasterActivityModal">
-              Dodatni časovi
-            </button>
+<!--      <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">-->
+<!--        <div class="summary-title-row">-->
+<!--          <div class="summary-title">-->
+<!--            Postdiplomske studije-->
+<!--          </div>-->
+<!--          <button (click)="refresh()" class="refresh-button">🔄</button>-->
 
-            <button
-              mat-menu-item
-              data-bs-toggle="modal"
-              data-bs-target="#addDoctoralActivityModal">
-              Komisija/Mentorstvo
-            </button>
+<!--          &lt;!&ndash; Dugme koje otvara MENU &ndash;&gt;-->
+<!--          <button-->
+<!--            mat-raised-button-->
+<!--            class="add-btn"-->
+<!--            [matMenuTriggerFor]="activityMenu">-->
+<!--            Dodaj aktivnost-->
+<!--          </button>-->
 
-            <button
-              mat-menu-item
-              data-bs-toggle="modal"
-              data-bs-target="#addOtherActivityModal">
-              Ostale aktivnosti
-            </button>
+<!--          &lt;!&ndash; MENU &ndash;&gt;-->
+<!--          <mat-menu #activityMenu="matMenu">-->
 
-          </mat-menu>
-        </div>
+<!--            <button-->
+<!--              mat-menu-item-->
+<!--              data-bs-toggle="modal"-->
+<!--              data-bs-target="#addMasterActivityModal">-->
+<!--              Dodatni časovi-->
+<!--            </button>-->
 
-      </div>
-      <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">
-        <div class="summary-row" (click)="openMasterModal()" style="cursor: pointer;">
-          <span class="label">Dodatni časovi na master studijama</span>
-          <span class="value">{{ extraMasterClasses }}</span>
-        </div>
-        <div class="summary-row" (click)="openDoctoralModal()" style="cursor: pointer;">
-          <span class="label">Dodatni časovi na doktorskim studijama</span>
-          <span class="value">{{ extraDoctoralClasses }}</span>
-        </div>
-        <div class="summary-row" (click)="openMentorCommissionModal()" style="cursor: pointer;">
-          <span class="label">Mentorstvo/Komisija</span>
-          <span class="value">{{ mentorCommissionInfo }}</span>
-        </div>
-      </div>
-      <!-- Paginator -->
-<!--      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">-->
+<!--            <button-->
+<!--              mat-menu-item-->
+<!--              data-bs-toggle="modal"-->
+<!--              data-bs-target="#addDoctoralActivityModal">-->
+<!--              Komisija/Mentorstvo-->
+<!--            </button>-->
 
-<!--        <button mat-button [matMenuTriggerFor]="exportMenu" color="primary">Export</button>-->
+<!--            <button-->
+<!--              mat-menu-item-->
+<!--              data-bs-toggle="modal"-->
+<!--              data-bs-target="#addOtherActivityModal">-->
+<!--              Ostale aktivnosti-->
+<!--            </button>-->
 
-      <app-master-class-modal #masterModal></app-master-class-modal>
-
-      <mat-paginator [pageSize]="10" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
-
-        <!-- Export Dropdown -->
-<!--        <mat-menu #exportMenu="matMenu">-->
-<!--          <button mat-menu-item [matMenuTriggerFor]="exportJsonMenu">Export to JSON</button>-->
-<!--          <button mat-menu-item [matMenuTriggerFor]="exportPdfMenu">Export to PDF</button>-->
-<!--        </mat-menu>-->
-
-        <!-- JSON Export Menu -->
-<!--        <mat-menu #exportJsonMenu="matMenu">-->
-<!--          <button mat-menu-item (click)="exportData('teachers', 'json')">Exportuj Nastavnike</button>-->
-<!--          <button mat-menu-item (click)="exportData('subjects', 'json')">Exportuj Predmete</button>-->
-<!--          <button mat-menu-item (click)="exportData('distributions', 'json')">Exportuj Raspodelu</button>-->
-<!--        </mat-menu>-->
-
-        <!-- PDF Export Menu -->
-<!--        <mat-menu #exportPdfMenu="matMenu">-->
-<!--          <button mat-menu-item (click)="exportData('teachers', 'pdf')">Exportuj Nastavnike</button>-->
-<!--          <button mat-menu-item (click)="exportData('subjects', 'pdf')">Exportuj Predmete</button>-->
-<!--        </mat-menu>-->
+<!--          </mat-menu>-->
+<!--        </div>-->
 
 <!--      </div>-->
-    </div>
-  </div>
-</div>
+<!--      <div *ngIf="!isDistributionButtonDisabled && summaryRows == 1" class="custom-summary-rows">-->
+<!--        <div class="summary-row" (click)="openMasterModal()" style="cursor: pointer;">-->
+<!--          <span class="label">Dodatni časovi na master studijama</span>-->
+<!--          <span class="value">{{ extraMasterClasses }}</span>-->
+<!--        </div>-->
+<!--        <div class="summary-row" (click)="openDoctoralModal()" style="cursor: pointer;">-->
+<!--          <span class="label">Dodatni časovi na doktorskim studijama</span>-->
+<!--          <span class="value">{{ extraDoctoralClasses }}</span>-->
+<!--        </div>-->
+<!--        <div class="summary-row" (click)="openMentorCommissionModal()" style="cursor: pointer;">-->
+<!--          <span class="label">Mentorstvo/Komisija</span>-->
+<!--          <span class="value">{{ mentorCommissionInfo }}</span>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      &lt;!&ndash; Paginator &ndash;&gt;-->
+<!--&lt;!&ndash;      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <button mat-button [matMenuTriggerFor]="exportMenu" color="primary">Export</button>&ndash;&gt;-->
+
+<!--      <app-master-class-modal #masterModal></app-master-class-modal>-->
+
+<!--      <mat-paginator [pageSize]="10" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>-->
+
+<!--        &lt;!&ndash; Export Dropdown &ndash;&gt;-->
+<!--&lt;!&ndash;        <mat-menu #exportMenu="matMenu">&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item [matMenuTriggerFor]="exportJsonMenu">Export to JSON</button>&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item [matMenuTriggerFor]="exportPdfMenu">Export to PDF</button>&ndash;&gt;-->
+<!--&lt;!&ndash;        </mat-menu>&ndash;&gt;-->
+
+<!--        &lt;!&ndash; JSON Export Menu &ndash;&gt;-->
+<!--&lt;!&ndash;        <mat-menu #exportJsonMenu="matMenu">&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item (click)="exportData('teachers', 'json')">Exportuj Nastavnike</button>&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item (click)="exportData('subjects', 'json')">Exportuj Predmete</button>&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item (click)="exportData('distributions', 'json')">Exportuj Raspodelu</button>&ndash;&gt;-->
+<!--&lt;!&ndash;        </mat-menu>&ndash;&gt;-->
+
+<!--        &lt;!&ndash; PDF Export Menu &ndash;&gt;-->
+<!--&lt;!&ndash;        <mat-menu #exportPdfMenu="matMenu">&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item (click)="exportData('teachers', 'pdf')">Exportuj Nastavnike</button>&ndash;&gt;-->
+<!--&lt;!&ndash;          <button mat-menu-item (click)="exportData('subjects', 'pdf')">Exportuj Predmete</button>&ndash;&gt;-->
+<!--&lt;!&ndash;        </mat-menu>&ndash;&gt;-->
+
+<!--&lt;!&ndash;      </div>&ndash;&gt;-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
 
 
-<!--Master modal-->
-<!-- MASTER MODAL -->
-<div
-  class="modal fade"
-  id="addMasterActivityModal"
-  tabindex="-1"
-  aria-labelledby="addMasterActivityModalLabel"
-  aria-hidden="true">
+<!--&lt;!&ndash;Master modal&ndash;&gt;-->
+<!--&lt;!&ndash; MASTER MODAL &ndash;&gt;-->
+<!--<div-->
+<!--  class="modal fade"-->
+<!--  id="addMasterActivityModal"-->
+<!--  tabindex="-1"-->
+<!--  aria-labelledby="addMasterActivityModalLabel"-->
+<!--  aria-hidden="true">-->
 
-  <div class="modal-dialog">
-    <div class="modal-content">
+<!--  <div class="modal-dialog">-->
+<!--    <div class="modal-content">-->
 
-      <!-- HEADER -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="addMasterActivityModalLabel">
-          Dodaj postakademsu aktivnost
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close">
-        </button>
-      </div>
+<!--      &lt;!&ndash; HEADER &ndash;&gt;-->
+<!--      <div class="modal-header">-->
+<!--        <h5 class="modal-title" id="addMasterActivityModalLabel">-->
+<!--          Dodaj postakademsu aktivnost-->
+<!--        </h5>-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn-close"-->
+<!--          data-bs-dismiss="modal"-->
+<!--          aria-label="Close">-->
+<!--        </button>-->
+<!--      </div>-->
 
-      <!-- BODY -->
-      <div class="modal-body">
-        <form>
+<!--      &lt;!&ndash; BODY &ndash;&gt;-->
+<!--      <div class="modal-body">-->
+<!--        <form>-->
 
-          <div class="mb-3">
-            <label for="studyLevel" class="form-label">
-              Nivo studija
-            </label>
+<!--          <div class="mb-3">-->
+<!--            <label for="studyLevel" class="form-label">-->
+<!--              Nivo studija-->
+<!--            </label>-->
 
-            <select
-              id="studyLevel"
-              class="form-control"
-              [(ngModel)]="postAcademicActivity.selectedLevel"
-              name="studyLevel">
+<!--            <select-->
+<!--              id="studyLevel"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="postAcademicActivity.selectedLevel"-->
+<!--              name="studyLevel">-->
 
-              <option value="" disabled>Izaberite nivo studija</option>
-              <option value="master">Master studije</option>
-              <option value="doktorat">Doktorske studije</option>
-            </select>
-          </div>
-
-
-          <!-- PREDMET -->
-          <div class="mb-3">
-            <label for="masterSubject" class="form-label">
-              Naziv predmeta
-            </label>
-            <input
-              type="text"
-              id="masterSubject"
-              class="form-control"
-              [(ngModel)]="postAcademicActivity.subject"
-              (input)="filterSubjects()"
-              (focus)="onSubjectFocus()"
-              name="studentName">
-
-            <ul
-              *ngIf="showDropdown"
-              class="list-group position-absolute w-100"
-              style="
-              z-index: 1000;
-              max-height: 200px;
-              overflow-y: auto;
-            ">
-
-              <li
-                *ngFor="let s of filteredSubjects"
-                class="list-group-item list-group-item-action"
-                style="cursor: pointer;"
-                (mousedown)="selectSubject(s)">
-                {{ s.name }}
-              </li>
-
-            </ul>
-
-          </div>
+<!--              <option value="" disabled>Izaberite nivo studija</option>-->
+<!--              <option value="master">Master studije</option>-->
+<!--              <option value="doktorat">Doktorske studije</option>-->
+<!--            </select>-->
+<!--          </div>-->
 
 
-          <!-- BROJ ČASOVA -->
-          <div class="mb-3">
-            <label for="masterHours" class="form-label">
-              Održano časova
-            </label>
-            <input
-              type="number"
-              id="masterHours"
-              class="form-control"
-              [(ngModel)]="postAcademicActivity.hoursHeld"
-              name="masterHours"
-              min="0">
-          </div>
+<!--          &lt;!&ndash; PREDMET &ndash;&gt;-->
+<!--          <div class="mb-3">-->
+<!--            <label for="masterSubject" class="form-label">-->
+<!--              Naziv predmeta-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="text"-->
+<!--              id="masterSubject"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="postAcademicActivity.subject"-->
+<!--              (input)="filterSubjects()"-->
+<!--              (focus)="onSubjectFocus()"-->
+<!--              name="studentName">-->
 
-          <div class="mb-3">
-            <label for="masterDate" class="form-label">
-              Datum održavanja časova
-            </label>
-            <input
-              type="date"
-              id="masterDate"
-              class="form-control"
-              [(ngModel)]="postAcademicActivity.masterDate"
-              name="masterDate"
-              min="0">
-          </div>
+<!--            <ul-->
+<!--              *ngIf="showDropdown"-->
+<!--              class="list-group position-absolute w-100"-->
+<!--              style="-->
+<!--              z-index: 1000;-->
+<!--              max-height: 200px;-->
+<!--              overflow-y: auto;-->
+<!--            ">-->
 
-          <div class="mb-3">
-            <label for="noteStudies" class="form-label">
-              Napomena
-            </label>
-            <textarea
-              rows="3"
-              cols="50"
-              id="noteStudies"
-              class="form-control"
-              [(ngModel)] = "postAcademicActivity.note"
-              name = "noteStudies"
-              placeholder="Dodati napomenu"
-            >
-            </textarea>
-          </div>
+<!--              <li-->
+<!--                *ngFor="let s of filteredSubjects"-->
+<!--                class="list-group-item list-group-item-action"-->
+<!--                style="cursor: pointer;"-->
+<!--                (mousedown)="selectSubject(s)">-->
+<!--                {{ s.name }}-->
+<!--              </li>-->
 
-        </form>
-      </div>
+<!--            </ul>-->
 
-      <!-- FOOTER -->
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal">
-          Zatvori
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="saveMasterActivity()">
-          Sačuvaj
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
+<!--          </div>-->
 
 
-<div
-  class="modal fade"
-  id="addOtherActivityModal"
-  tabindex="-1"
-  aria-labelledby="addOtherActivityModalLabel"
-  aria-hidden="true">
+<!--          &lt;!&ndash; BROJ ČASOVA &ndash;&gt;-->
+<!--          <div class="mb-3">-->
+<!--            <label for="masterHours" class="form-label">-->
+<!--              Održano časova-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="number"-->
+<!--              id="masterHours"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="postAcademicActivity.hoursHeld"-->
+<!--              name="masterHours"-->
+<!--              min="0">-->
+<!--          </div>-->
 
-  <div class="modal-dialog">
-    <div class="modal-content">
+<!--          <div class="mb-3">-->
+<!--            <label for="masterDate" class="form-label">-->
+<!--              Datum održavanja časova-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="date"-->
+<!--              id="masterDate"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="postAcademicActivity.masterDate"-->
+<!--              name="masterDate"-->
+<!--              min="0">-->
+<!--          </div>-->
 
-      <!-- HEADER -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="addOtherActivityModalLabel">
-          Unesi dodatnu aktivnost
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close">
-        </button>
-      </div>
+<!--          <div class="mb-3">-->
+<!--            <label for="noteStudies" class="form-label">-->
+<!--              Napomena-->
+<!--            </label>-->
+<!--            <textarea-->
+<!--              rows="3"-->
+<!--              cols="50"-->
+<!--              id="noteStudies"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)] = "postAcademicActivity.note"-->
+<!--              name = "noteStudies"-->
+<!--              placeholder="Dodati napomenu"-->
+<!--            >-->
+<!--            </textarea>-->
+<!--          </div>-->
 
-      <!-- BODY -->
-      <div class="modal-body">
-        <form>
+<!--        </form>-->
+<!--      </div>-->
 
-          <!-- PREDMET -->
-          <div class="mb-3 position-relative">
-            <label for="otherActivitySubject" class="form-label">
-              Naziv predmeta
-            </label>
+<!--      &lt;!&ndash; FOOTER &ndash;&gt;-->
+<!--      <div class="modal-footer">-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn btn-secondary"-->
+<!--          data-bs-dismiss="modal">-->
+<!--          Zatvori-->
+<!--        </button>-->
 
-            <!-- INPUT (JEDAN) -->
-            <input
-              type="text"
-              id="otherActivitySubject"
-              class="form-control"
-              placeholder="Izaberi predmet"
-              [(ngModel)]="otherAcademicActivity.subject"
-              name="subject"
-              autocomplete="off">
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn btn-primary"-->
+<!--          (click)="saveMasterActivity()">-->
+<!--          Sačuvaj-->
+<!--        </button>-->
+<!--      </div>-->
 
-            <!-- DROPDOWN (OVDE IDE ngFor) -->
-          </div>
-
-
-
-          <!-- BROJ ČASOVA -->
-          <div class="mb-3">
-            <label for="otherActivityHours" class="form-label">
-              Održano časova
-            </label>
-            <input
-              type="number"
-              id="otherActivityHours"
-              class="form-control"
-              [(ngModel)]="otherAcademicActivity.hoursHeld"
-              name="academicHours"
-              min="0">
-          </div>
-
-          <div class="mb-3">
-            <label for="otherActivityDate" class="form-label">
-              Datum održavanja časova
-            </label>
-            <input
-              type="date"
-              id="otherActivityDate"
-              class="form-control"
-              [(ngModel)]="otherAcademicActivity.masterDate"
-              name="masterDate"
-              min="0">
-          </div>
-
-          <div class="mb-3">
-            <label for="otherActivityNoteStudies" class="form-label">
-              Napomena
-            </label>
-            <textarea
-              rows="3"
-              cols="50"
-              id="otherActivityNoteStudies"
-              class="form-control"
-              [(ngModel)] = "otherAcademicActivity.note"
-              name = "noteStudies"
-              placeholder="Dodati napomenu"
-            >
-            </textarea>
-          </div>
-
-        </form>
-      </div>
-
-      <!-- FOOTER -->
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="cancelOtherActivity()"
-          data-bs-dismiss="modal">
-          Zatvori
-        </button>
-
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="saveOtherAcademicActivity()">
-          Sačuvaj
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
 
 
-<!--Komisija/Mentor Modal-->
-<div
-  class="modal fade"
-  id="addDoctoralActivityModal"
-  tabindex="-1"
-  aria-labelledby="addDoctoralActivityModalLabel"
-  aria-hidden="true">
+<!--<div-->
+<!--  class="modal fade"-->
+<!--  id="addOtherActivityModal"-->
+<!--  tabindex="-1"-->
+<!--  aria-labelledby="addOtherActivityModalLabel"-->
+<!--  aria-hidden="true">-->
 
-  <div class="modal-dialog">
-    <div class="modal-content">
+<!--  <div class="modal-dialog">-->
+<!--    <div class="modal-content">-->
 
-      <!-- HEADER -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="addDoctoralActivityModalLabel">
-          Forma za komisiju/mentorstvo
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close">
-        </button>
-      </div>
+<!--      &lt;!&ndash; HEADER &ndash;&gt;-->
+<!--      <div class="modal-header">-->
+<!--        <h5 class="modal-title" id="addOtherActivityModalLabel">-->
+<!--          Unesi dodatnu aktivnost-->
+<!--        </h5>-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn-close"-->
+<!--          data-bs-dismiss="modal"-->
+<!--          aria-label="Close">-->
+<!--        </button>-->
+<!--      </div>-->
 
-      <!-- BODY -->
-      <div class="modal-body">
-        <form>
+<!--      &lt;!&ndash; BODY &ndash;&gt;-->
+<!--      <div class="modal-body">-->
+<!--        <form>-->
 
-          <!-- TIP ANGAŽMANA -->
-          <div class="mb-3">
-            <label for="engagementType" class="form-label">
-              Tip angažmana
-            </label>
-            <select
-              id="engagementType"
-              class="form-select"
-              [(ngModel)]="doctoralActivity.type"
-              name="engagementType">
+<!--          &lt;!&ndash; PREDMET &ndash;&gt;-->
+<!--          <div class="mb-3 position-relative">-->
+<!--            <label for="otherActivitySubject" class="form-label">-->
+<!--              Naziv predmeta-->
+<!--            </label>-->
 
-              <option value="" disabled selected>
-                Izaberi tip
-              </option>
-              <option value="Mentorstvo">Mentorstvo</option>
-              <option value="Komisija">Komisija</option>
-            </select>
-          </div>
+<!--            &lt;!&ndash; INPUT (JEDAN) &ndash;&gt;-->
+<!--            <input-->
+<!--              type="text"-->
+<!--              id="otherActivitySubject"-->
+<!--              class="form-control"-->
+<!--              placeholder="Izaberi predmet"-->
+<!--              [(ngModel)]="otherAcademicActivity.subject"-->
+<!--              name="subject"-->
+<!--              autocomplete="off">-->
 
-          <div class="mb-3">
-            <label for="degree" class="form-label">
-              Stepen studija
-            </label>
-            <select
-              id="degree"
-              class="form-select"
-              [(ngModel)]="doctoralActivity.degree"
-              name="degreeStudies">
+<!--            &lt;!&ndash; DROPDOWN (OVDE IDE ngFor) &ndash;&gt;-->
+<!--          </div>-->
 
-              <option value="" disabled selected>
-                Izabrati stepen
-              </option>
-              <option value="Diplomski rad">Osnovne studije - Diplomski rad</option>
-              <option value="Master rad">Master studije - Master rad</option>
-              <option value="Doktorski rad">Doktorske studije - Doktorski rad</option>
-            </select>
-          </div>
 
-          <!-- IME STUDENTA -->
-          <div class="mb-3">
-            <label for="studentName" class="form-label">
-              Ime studenta
-            </label>
-            <input
-              type="text"
-              id="studentName"
-              class="form-control"
-              [(ngModel)]="doctoralActivity.studentName"
-              name="studentName">
-          </div>
 
-          <!-- TEMA -->
-          <div class="mb-3">
-            <label for="thesisTopic" class="form-label">
-              Tema rada
-            </label>
-            <input
-              type="text"
-              id="thesisTopic"
-              class="form-control"
-              [(ngModel)]="doctoralActivity.topic"
-              name="thesisTopic">
-          </div>
+<!--          &lt;!&ndash; BROJ ČASOVA &ndash;&gt;-->
+<!--          <div class="mb-3">-->
+<!--            <label for="otherActivityHours" class="form-label">-->
+<!--              Održano časova-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="number"-->
+<!--              id="otherActivityHours"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="otherAcademicActivity.hoursHeld"-->
+<!--              name="academicHours"-->
+<!--              min="0">-->
+<!--          </div>-->
 
-          <div class="mb-3">
-            <label for="noteForCommissionMentor" class="form-label">
-              Napomena
-            </label>
-            <textarea
-              rows="3"
-              cols="50"
-              id="noteForCommissionMentor"
-              class="form-control"
-              [(ngModel)] = "doctoralActivity.note"
-              name = "noteStudies"
-              placeholder="Dodati napomenu"
-            >
-            </textarea>
-          </div>
+<!--          <div class="mb-3">-->
+<!--            <label for="otherActivityDate" class="form-label">-->
+<!--              Datum održavanja časova-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="date"-->
+<!--              id="otherActivityDate"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="otherAcademicActivity.masterDate"-->
+<!--              name="masterDate"-->
+<!--              min="0">-->
+<!--          </div>-->
 
-        </form>
-      </div>
+<!--          <div class="mb-3">-->
+<!--            <label for="otherActivityNoteStudies" class="form-label">-->
+<!--              Napomena-->
+<!--            </label>-->
+<!--            <textarea-->
+<!--              rows="3"-->
+<!--              cols="50"-->
+<!--              id="otherActivityNoteStudies"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)] = "otherAcademicActivity.note"-->
+<!--              name = "noteStudies"-->
+<!--              placeholder="Dodati napomenu"-->
+<!--            >-->
+<!--            </textarea>-->
+<!--          </div>-->
 
-      <!-- FOOTER -->
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal">
-          Zatvori
-        </button>
+<!--        </form>-->
+<!--      </div>-->
 
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="saveCommissionMentorActivity()">
-          Sačuvaj
-        </button>
-      </div>
+<!--      &lt;!&ndash; FOOTER &ndash;&gt;-->
+<!--      <div class="modal-footer">-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn btn-secondary"-->
+<!--          (click)="cancelOtherActivity()"-->
+<!--          data-bs-dismiss="modal">-->
+<!--          Zatvori-->
+<!--        </button>-->
+
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn btn-primary"-->
+<!--          (click)="saveOtherAcademicActivity()">-->
+<!--          Sačuvaj-->
+<!--        </button>-->
+<!--      </div>-->
+
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+
+<!--&lt;!&ndash;Komisija/Mentor Modal&ndash;&gt;-->
+<!--<div-->
+<!--  class="modal fade"-->
+<!--  id="addDoctoralActivityModal"-->
+<!--  tabindex="-1"-->
+<!--  aria-labelledby="addDoctoralActivityModalLabel"-->
+<!--  aria-hidden="true">-->
+
+<!--  <div class="modal-dialog">-->
+<!--    <div class="modal-content">-->
+
+<!--      &lt;!&ndash; HEADER &ndash;&gt;-->
+<!--      <div class="modal-header">-->
+<!--        <h5 class="modal-title" id="addDoctoralActivityModalLabel">-->
+<!--          Forma za komisiju/mentorstvo-->
+<!--        </h5>-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn-close"-->
+<!--          data-bs-dismiss="modal"-->
+<!--          aria-label="Close">-->
+<!--        </button>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; BODY &ndash;&gt;-->
+<!--      <div class="modal-body">-->
+<!--        <form>-->
+
+<!--          &lt;!&ndash; TIP ANGAŽMANA &ndash;&gt;-->
+<!--          <div class="mb-3">-->
+<!--            <label for="engagementType" class="form-label">-->
+<!--              Tip angažmana-->
+<!--            </label>-->
+<!--            <select-->
+<!--              id="engagementType"-->
+<!--              class="form-select"-->
+<!--              [(ngModel)]="doctoralActivity.type"-->
+<!--              name="engagementType">-->
+
+<!--              <option value="" disabled selected>-->
+<!--                Izaberi tip-->
+<!--              </option>-->
+<!--              <option value="Mentorstvo">Mentorstvo</option>-->
+<!--              <option value="Komisija">Komisija</option>-->
+<!--            </select>-->
+<!--          </div>-->
+
+<!--          <div class="mb-3">-->
+<!--            <label for="degree" class="form-label">-->
+<!--              Stepen studija-->
+<!--            </label>-->
+<!--            <select-->
+<!--              id="degree"-->
+<!--              class="form-select"-->
+<!--              [(ngModel)]="doctoralActivity.degree"-->
+<!--              name="degreeStudies">-->
+
+<!--              <option value="" disabled selected>-->
+<!--                Izabrati stepen-->
+<!--              </option>-->
+<!--              <option value="Diplomski rad">Osnovne studije - Diplomski rad</option>-->
+<!--              <option value="Master rad">Master studije - Master rad</option>-->
+<!--              <option value="Doktorski rad">Doktorske studije - Doktorski rad</option>-->
+<!--            </select>-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; IME STUDENTA &ndash;&gt;-->
+<!--          <div class="mb-3">-->
+<!--            <label for="studentName" class="form-label">-->
+<!--              Ime studenta-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="text"-->
+<!--              id="studentName"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="doctoralActivity.studentName"-->
+<!--              name="studentName">-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; TEMA &ndash;&gt;-->
+<!--          <div class="mb-3">-->
+<!--            <label for="thesisTopic" class="form-label">-->
+<!--              Tema rada-->
+<!--            </label>-->
+<!--            <input-->
+<!--              type="text"-->
+<!--              id="thesisTopic"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)]="doctoralActivity.topic"-->
+<!--              name="thesisTopic">-->
+<!--          </div>-->
+
+<!--          <div class="mb-3">-->
+<!--            <label for="noteForCommissionMentor" class="form-label">-->
+<!--              Napomena-->
+<!--            </label>-->
+<!--            <textarea-->
+<!--              rows="3"-->
+<!--              cols="50"-->
+<!--              id="noteForCommissionMentor"-->
+<!--              class="form-control"-->
+<!--              [(ngModel)] = "doctoralActivity.note"-->
+<!--              name = "noteStudies"-->
+<!--              placeholder="Dodati napomenu"-->
+<!--            >-->
+<!--            </textarea>-->
+<!--          </div>-->
+
+<!--        </form>-->
+<!--      </div>-->
+
+<!--      &lt;!&ndash; FOOTER &ndash;&gt;-->
+<!--      <div class="modal-footer">-->
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn btn-secondary"-->
+<!--          data-bs-dismiss="modal">-->
+<!--          Zatvori-->
+<!--        </button>-->
+
+<!--        <button-->
+<!--          type="button"-->
+<!--          class="btn btn-primary"-->
+<!--          (click)="saveCommissionMentorActivity()">-->
+<!--          Sačuvaj-->
+<!--        </button>-->
+<!--      </div>-->
+
+<!--      <app-postgraduate-studies-->
+<!--        *ngIf="selectedDistributions?.length"-->
+<!--        [teacherId]="selectedDistributions[0].teacher.id"-->
+<!--        [canEdit]="true">-->
+<!--      </app-postgraduate-studies>-->
 
     </div>
   </div>

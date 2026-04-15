@@ -1,4 +1,6 @@
 export interface standardUser {
+  teacherId: number;
+
   firstName: string;
   lastName: string;
   email: string;

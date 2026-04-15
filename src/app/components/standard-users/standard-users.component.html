@@ -55,6 +55,13 @@
 
     </div>
   </div>
+
+  <app-postgraduate-studies
+    *ngIf="teacherId"
+    [teacherId]="teacherId!"
+    [canEdit]="true">
+  </app-postgraduate-studies>
+
 </div>
 
 
