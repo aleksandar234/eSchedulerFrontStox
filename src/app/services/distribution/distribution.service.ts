@@ -45,4 +45,10 @@ export class DistributionService {
     });
   }
 
+  getStandardUserByYear(email: string, schoolYearId: number): Observable<standardUser[]> {
+    return this.httpClient.get<standardUser[]>(
+      `${environment.apiUrl}/distributions/${email}/school-year/${schoolYearId}`
+    );
+  }
+
 }

@@ -1,11 +1,104 @@
+<!--<nav class="navbar navbar-expand-lg navbar-light bg-light">-->
+<!--  <div class="container-fluid">-->
+<!--    <a class="navbar-brand" routerLink="/">eScheduler</a>-->
+
+<!--    <div class="d-flex align-items-center ms-auto">-->
+<!--      <span class="navbar-text me-3">-->
+<!--      <span>Zdravo, <strong>{{ username}} !</strong></span>-->
+<!--      </span>-->
+
+<!--      &lt;!&ndash; Logout dugme &ndash;&gt;-->
+<!--      <button class="btn btn-outline-danger" (click)="onLogout()">-->
+<!--        <i class="bi bi-box-arrow-right"></i> Logout-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</nav>-->
+
+<!--<div class="page-container">-->
+<!--  <div class="section">-->
+<!--    <div class="table-container">-->
+
+
+<!--      &lt;!&ndash; Table &ndash;&gt;-->
+<!--      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 compact-table">-->
+
+<!--        &lt;!&ndash; Dynamic Columns &ndash;&gt;-->
+<!--        <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">-->
+<!--          <th mat-header-cell *matHeaderCellDef> {{ columnNamesMap[column] }} </th>-->
+<!--          <td mat-cell *matCellDef="let element"> {{ element[column] }} </td>-->
+<!--        </ng-container>-->
+
+<!--        &lt;!&ndash; Header & Rows &ndash;&gt;-->
+<!--        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>-->
+<!--        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>-->
+<!--      </table>-->
+
+<!--      <div class="custom-summary-rows">-->
+<!--        <div class="summary-row">-->
+<!--          <span class="label">Nedeljno časova neparni (P)</span>-->
+<!--          <span class="value">{{ weeklyLecturesO }}</span>-->
+<!--          <span class="label">Nedeljno časova parni (P)</span>-->
+<!--          <span class="value">{{ weeklyLecturesE }}</span>-->
+<!--          <span class="label">Ukupan fond (P)</span>-->
+<!--          <span class="value">{{ totalLectures }}</span>-->
+<!--        </div>-->
+<!--        <div class="summary-row">-->
+<!--          <span class="label">Nedeljno časova neparni (V)</span>-->
+<!--          <span class="value">{{ weeklyExercisesO }}</span>-->
+<!--          <span class="label">Nedeljno časova parni (V)</span>-->
+<!--          <span class="value">{{ weeklyExercisesE }}</span>-->
+<!--          <span class="label">Ukupan fond (V)</span>-->
+<!--          <span class="value">{{ totalExercises }}</span>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  <app-postgraduate-studies-->
+<!--    *ngIf="teacherId"-->
+<!--    [teacherId]="teacherId!"-->
+<!--    [canEdit]="true">-->
+<!--  </app-postgraduate-studies>-->
+
+<!--</div>-->
+
+
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" routerLink="/">eScheduler</a>
 
     <div class="d-flex align-items-center ms-auto">
       <span class="navbar-text me-3">
-      <span>Zdravo, <strong>{{ username}} !</strong></span>
+        <span>Zdravo, <strong>{{ username }} !</strong></span>
       </span>
+
+      <!-- Izbor školske godine -->
+      <div class="dropdown me-3">
+        <button
+          class="btn btn-outline-success dropdown-toggle fw-bold"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false">
+          {{ activeYear || 'Školska godina' }}
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li *ngFor="let year of schoolYears">
+            <button
+              class="dropdown-item"
+              [ngClass]="{
+                  'fw-bold text-success': year.active,
+                  'text-danger': !year.active
+                }"
+              (click)="selectSchoolYear(year)">
+              {{ year.label || year.oznaka }}
+            </button>
+          </li>
+        </ul>
+      </div>
 
       <!-- Logout dugme -->
       <button class="btn btn-outline-danger" (click)="onLogout()">
@@ -19,14 +112,18 @@
   <div class="section">
     <div class="table-container">
 
-
       <!-- Table -->
       <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 compact-table">
 
         <!-- Dynamic Columns -->
         <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-          <th mat-header-cell *matHeaderCellDef> {{ columnNamesMap[column] }} </th>
-          <td mat-cell *matCellDef="let element"> {{ element[column] }} </td>
+          <th mat-header-cell *matHeaderCellDef>
+            {{ columnNamesMap[column] }}
+          </th>
+
+          <td mat-cell *matCellDef="let element">
+            {{ element[column] }}
+          </td>
         </ng-container>
 
         <!-- Header & Rows -->
@@ -38,16 +135,21 @@
         <div class="summary-row">
           <span class="label">Nedeljno časova neparni (P)</span>
           <span class="value">{{ weeklyLecturesO }}</span>
+
           <span class="label">Nedeljno časova parni (P)</span>
           <span class="value">{{ weeklyLecturesE }}</span>
+
           <span class="label">Ukupan fond (P)</span>
           <span class="value">{{ totalLectures }}</span>
         </div>
+
         <div class="summary-row">
           <span class="label">Nedeljno časova neparni (V)</span>
           <span class="value">{{ weeklyExercisesO }}</span>
+
           <span class="label">Nedeljno časova parni (V)</span>
           <span class="value">{{ weeklyExercisesE }}</span>
+
           <span class="label">Ukupan fond (V)</span>
           <span class="value">{{ totalExercises }}</span>
         </div>
@@ -61,7 +163,4 @@
     [teacherId]="teacherId!"
     [canEdit]="true">
   </app-postgraduate-studies>
-
 </div>
-
-
