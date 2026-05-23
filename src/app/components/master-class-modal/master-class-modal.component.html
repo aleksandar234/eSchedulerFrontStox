@@ -155,3 +155,46 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="otherActivitiesModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Ostale aktivnosti</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <table class="table table-striped" *ngIf="otherActivities.length">
+          <thead>
+          <tr>
+            <th>Aktivnost</th>
+            <th>Broj časova</th>
+            <th>Datum održavanja</th>
+            <th>Datum unosa</th>
+            <th>Napomena</th>
+          </tr>
+          </thead>
+
+          <tbody>
+          <tr *ngFor="let activity of otherActivities">
+            <td>{{ activity.predmetNaPostakademskimStudijama }}</td>
+            <td>{{ activity.odrzanoCasova }}</td>
+            <td>{{ activity.datumOdrzavanjaCasova | date:'dd.MM.yyyy' }}</td>
+            <td>{{ activity.datumUnosa | date:'dd.MM.yyyy' }}</td>
+            <td>{{ activity.napomena }}</td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="otherActivities.length === 0" class="text-center text-muted">
+          Nema ostalih aktivnosti
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

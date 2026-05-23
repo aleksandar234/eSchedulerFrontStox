@@ -52,6 +52,7 @@ export class PostgraduateStudiesComponent implements OnInit{
   subjects: Subject[] = [];
   filteredSubjects: Subject[] = [];
   showDropdown: boolean = false;
+  extraOtherActivities: number = 0;
 
 
   postAcademicActivity = {
@@ -339,6 +340,7 @@ export class PostgraduateStudiesComponent implements OnInit{
     this.loadTotalMentorCommissionInfo();
     this.loadTotalClassesAsync();
     this.loadTotalDoctoralClassesAsync();
+    this.loadTotalOtherActivitiesAsync();
   }
 
   dodajMaster() {
@@ -499,8 +501,65 @@ export class PostgraduateStudiesComponent implements OnInit{
     };
   }
 
+  loadTotalOtherActivitiesAsync() {
+    const intervalId = setInterval(() => {
+      if (this.teacherId) {
+        this.masterService.triggerOtherActivitiesCountEvent(this.teacherId);
+        clearInterval(intervalId);
+      }
+    }, 100);
+
+    this.masterService.onOtherActivitiesCountChanged().subscribe(value => {
+      this.extraOtherActivities = value;
+    });
+  }
+
   saveOtherAcademicActivity() {
-    // Implementacija logike za čuvanje druge akademske aktivnosti
+    const currentYear = this.schoolYearService.getCurrentYear();
+
+    const newActivity = {
+      predmetNaPostakademskimStudijama: this.otherAcademicActivity.subject,
+      odrzanoCasova: this.otherAcademicActivity.hoursHeld,
+      datumOdrzavanjaCasova: this.otherAcademicActivity.masterDate,
+      datumUnosa: new Date(),
+      nastavnikId: this.teacherId,
+      stepenStudija: 'ostalo',
+      skolskaGodinaId: currentYear?.id_skolska_godina,
+      napomena: this.otherAcademicActivity.note
+    };
+
+    this.masterModal.addOtherActivity(newActivity);
+
+    this.otherAcademicActivity = {
+      subject: '',
+      hoursHeld: null,
+      masterDate: new Date(),
+      selectedLevel: '',
+      note: ''
+    };
+
+    this.loadTotalOtherActivitiesAsync();
+  }
+
+  openOtherActivitiesModal() {
+
+    if (!this.masterModal) {
+      console.warn('Modal komponenta još nije inicijalizovana!');
+      return;
+    }
+
+    this.masterModal.nastavnikId = this.teacherId;
+
+    this.masterModal.loadOtherActivities().subscribe(list => {
+      console.log("Ostale aktivnosti koje dobijam u parentu:", list);
+
+      const modalEl = document.getElementById('otherActivitiesModal');
+      if (modalEl) {
+        const modal = new Modal(modalEl);
+        modal.show();
+      }
+    });
+
   }
 
 }

@@ -30,6 +30,7 @@ export class MasterClassModalComponent {
   newPredmet = '';
   newCasova: number | null = null;
   newDatum = '';
+  otherActivities: MasterClass[] = [];
 
   constructor(private masterClassService: MasterClassService) {}
 
@@ -136,6 +137,30 @@ export class MasterClassModalComponent {
   closeDoctoralModal() {
     const modalEl = document.getElementById('addDoctoralActivityModal');
     if(modalEl) {
+      const modal = Modal.getInstance(modalEl);
+      modal?.hide();
+    }
+  }
+
+  loadOtherActivities(): Observable<MasterClass[]> {
+    if (!this.nastavnikId) return of([]);
+
+    return this.masterClassService.getOtherActivities(this.nastavnikId)
+      .pipe(tap(classes => {
+        this.otherActivities = classes;
+      }));
+  }
+
+  addOtherActivity(newActivity: any) {
+    if (!newActivity.datumOdrzavanjaCasova || !newActivity.predmetNaPostakademskimStudijama || !newActivity.odrzanoCasova) return;
+
+    this.masterClassService.addMasterClass(newActivity)
+      .subscribe(newClass => {
+        this.otherActivities.unshift(newClass);
+      });
+
+    const modalEl = document.getElementById('addOtherActivityModal');
+    if (modalEl) {
       const modal = Modal.getInstance(modalEl);
       modal?.hide();
     }

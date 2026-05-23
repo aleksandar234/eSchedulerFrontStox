@@ -18,6 +18,8 @@ export class MasterClassService {
   private extraDoctoralClasses$ = new Subject<number>()
   private mentorCommissionInfo$ = new Subject<number>()
 
+  private otherActivitiesCount$ = new Subject<number>();
+
   constructor(private http: HttpClient) { }
 
 
@@ -98,6 +100,21 @@ export class MasterClassService {
     return this.http.post<MentorCommissionModel>(this.apiUrlCommissionMentor, mentorCommissionActivity)
   }
 
+
+  onOtherActivitiesCountChanged(): Observable<number> {
+    return this.otherActivitiesCount$.asObservable();
+  }
+
+  triggerOtherActivitiesCountEvent(nastavnikId: number) {
+    this.getOtherActivities(nastavnikId).subscribe(list => {
+      const ukupno = list.reduce((sum, x) => sum + x.odrzanoCasova, 0);
+      this.otherActivitiesCount$.next(ukupno);
+    });
+  }
+
+  getOtherActivities(nastavnikId: number): Observable<MasterClass[]> {
+    return this.http.get<MasterClass[]>(`${this.apiUrl}/${nastavnikId}/ostale`);
+  }
 
 
 }
